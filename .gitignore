@@ -1,4 +1,5 @@
 .idea/
 cmake-build-*/
 test*/
+asset/
 CMakeLists.txt
