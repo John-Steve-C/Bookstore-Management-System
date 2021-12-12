@@ -7,6 +7,8 @@
 
 #include <set>
 #include <unordered_map>
+#include "ull.h"
+
 using std::string;
 class Book_database{
 private:
@@ -19,8 +21,8 @@ private:
         Book(){}
     }
     //todo:维护有序性
-    set<string> Book_list;
-    unordered_map<string,Book> MAP;
+    set<string> book_list;
+    unordered_map<string,Book> mp;
 
 public:
     void show(string _ISBN = "",string _name = "",string _author = "",string _keyword[]){}

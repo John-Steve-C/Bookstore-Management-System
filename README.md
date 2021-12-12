@@ -16,15 +16,17 @@
 
 ## 文件架构：
 
-$ull->main->{account,bookdatabase,log}$
+file_io 	->	ull	->	main	->	{account,	bookdatabase,	log}
 
 ## 分块实现：
 
-### 块状链表 & 文件读写
+### 块状链表
 
 接口：ull.h
 
 以下的bookdatabase, account类都是要存储在块状链表中的。
+
+对第一次的模板做出了修改。
 
 ```cpp
 class UllNode {
@@ -33,27 +35,36 @@ class UllNode {
 // of value is `char[64]`, but the constructor only
 // accepts `std::string` as value.
 public:
-    int offset;//操作的时间
-    //并不是Block中的第offset个数据
-    char str[64];
-    bool operator<(const UllNode &x) const;
-    // Compares str
+    int offset,val;//val是操作的'时间',是排序的第二关键字
+    //offset是节点在文件中的位置
+    char str[64];//实际上存储的信息，用来比对
 
     UllNode();
     UllNode(const int &arg1, const std::string &arg2);
+    bool operator<(const UllNode &x) const;
+    bool operator==(const UllNode &x) const;
     UllNode &operator=(const UllNode &right);
 };
 
 class UllBlock {
 // For ULL class internal use only
 public:
-//    int nxt,pre;
-    //指针
-    UllBlock *next,*pre;
-    int num;//整个链表中的第几块
+    int nxt,pre;//指针
+    int num,siz;//num指链表中的第几块,siz是块的大小
     UllNode array[BLOCK_SIZE];
+
     UllBlock();
+    UllBlock(const int _siz,const UllNode *_array);
     UllBlock &operator=(const UllBlock &right);
+
+    bool add(const UllNode &x);//在块中新添加元素
+    bool del(const UllNode &x);//删除块中的元素
+    UllBlock split(const int &x);//把当前块拆分为长度为 siz-x 和 x 的两块
+    //返回的是长度为x的新块
+    UllBlock & merge(const UllBlock &x);//将当前块与x合并
+    //指针尚未进行更改
+    void search(const std::string &key, std::vector<int> &temp_array);
+    //在当前块中查找键值位key的Node，返回一个vector
 };
 
 class Ull {
@@ -63,35 +74,75 @@ class Ull {
 // But it is inferior to 'B+ Tree' in performance.
 private:
     const std::string file_name;
-    int siz;
-    std::fstream fi, fo, fi2, fo2, fip, fip2, fop, fop2;
-    // File Input/Output fstream objects
-    // P for private methods
+    int siz;//块的个数
+    int offset[BLOCK_SIZE];//每个块在文件中的位置
+    UllNode head[BLOCK_SIZE];//每个块的头节点？
+    MemoryRiver<UllBlock> block_list;
 
-    inline int nextBlock(const int &offset);
-    inline void delBlock(const int &offset);
-    void mergeBlock(const int &offset1, const int &offset2);
-    UllBlock *splitBlock(const int &offset);
+    inline void del_block(const int &pos);//删除第pos块
 
 public:
-    //文件读入
+    //文件读入,arg就是filename
     Ull(const std::string &arg);
-    ~Ull();
-    void findNode(const std::string &key, std::vector<int> &array);
-    // Returns an empty array if the node doesn't exist
 
-    void addNode(const UllNode &node);
-    int deleteNode(const UllNode &node);
-    void maintain();
+    ~Ull();
+
+    void find_node(const std::string &key, std::vector<int> &temp_array);
+    // Returns an empty array if the node doesn't exist
+    // temp_array is used to store the position of existing nodes
+
+    void add_node(const UllNode &node);
+
+    int delete_node(const UllNode &node);
+
+    int find_position(const UllNode &node) const;//找到x所在的块，返回块的编号
 
 #ifdef PPL_DEBUG
     void debugPrint();
 #endif
-
 };
 ```
 
-~~可能会重新写一个文件读写类（类似小作业MemoryRiver.h）~~
+### 文件读写类
+
+接口：file_io.h
+
+实际上就是上次小作业中的MemoryRiver。
+
+```cpp
+template<class T, int info_len = 0>//
+class MemoryRiver {
+private:
+    fstream file;
+    string file_name;
+    int sizeofT = sizeof(T);
+    int num_T = 0;
+    vector<int> next_index;
+
+public:
+    MemoryRiver() = default;
+
+    MemoryRiver(const string &file_name) : file_name(file_name) {}
+
+    void initialise(string FN = "") { }
+
+    //在文件合适位置写入 类对象t，并返回写入的位置索引index
+    //位置索引意味着当输入正确的位置索引index，在以下三个函数中都能顺利的找到目标对象进行操作
+    //位置索引index可以取为对象写入的起始位置
+    //todo: It's really important！
+    int write(T &t) { }
+
+    //用t的值更新位置索引index对应的对象，保证调用的index都是由write函数产生
+    void update(T &t, const int index) { }
+
+    //读出位置索引index对应的T对象的值并fi赋值给t，保证调用的index都是由write函数产生
+    void read(T &t, const int index) { }
+
+    //删除位置索引index对应的对象(不涉及空间回收时，可忽略此函数)，保证调用的index都是由write函数产生
+    void Delete(int index) { }
+
+};
+```
 
 ### 命令读取类
 
@@ -99,7 +150,16 @@ public:
 
 思路是在main函数中，利用Token等读取具体的指令，把权限{0}、命令类型、命令参数三者分开读取，并将其分派到相应的接口中，分别实现。
 
-目前尚未完成QWQ
+```cpp
+class Command {
+private:
+    string cmd;
+    int len;
+public:
+    void get_token(){ }
+    //未完待续
+};
+```
 
 ### 账户系统
 
@@ -154,8 +214,8 @@ private:
         Book(){}
     }
     //todo:维护有序性，maybe useful?
-    set<string> Book_list;
-    unordered_map<string,Book> MAP;
+    set<string> book_list;
+    unordered_map<string,Book> map;
     //注意到:某些信息是不能重复的(如ISBN)，需要进行判断
 
 public:
@@ -219,3 +279,9 @@ public:
 >
 > ——by Leonard_chen
 
+## 开发记录：
+
+### 块状链表的实现
+
+- [x] UllBlock中，add，del，merge，split操作
+- [ ] Ull中，add_node，del_node，操作
