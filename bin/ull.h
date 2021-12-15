@@ -84,8 +84,8 @@ class Ull {//专门用来处理与文件交互的操作
 private:
     const std::string file_name;
     int siz;//块的个数
-    int offset[BLOCK_SIZE];//每个块在文件中的位置
-    UllNode head[BLOCK_SIZE];//每个块的头节点？
+    int offset[BLOCK_SIZE];//每个块在文件中的起始位置
+    UllNode head[BLOCK_SIZE];//每个块的头节点
     MemoryRiver<UllBlock> block_list;
 
     inline void del_block(const int &pos);//删除第pos块
@@ -103,8 +103,6 @@ public:
     void add_node(const UllNode &node);
 
     int delete_node(const UllNode &node);
-
-    int find_position(const UllNode &node) const;//找到x所在的块，返回块的编号
 
 #ifdef PPL_DEBUG
     void debugPrint();

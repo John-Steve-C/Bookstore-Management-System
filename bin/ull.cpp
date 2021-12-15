@@ -14,6 +14,7 @@ UllNode::UllNode() = default;
 
 UllNode::UllNode(const int &arg1, const std::string &arg2) {
     offset = arg1;
+    //val need to be changed
     stringstream ss;
     ss << arg2;
     ss >> str;
@@ -105,26 +106,54 @@ Ull::~Ull() {}
 
 //todo: 完善以下操作，并保证其正确性
 void Ull::add_node(const UllNode &node) {
-    UllBlock temp;
-    int _pos = find_position(node);
-    block_list.read(temp, offset[_pos]);
-    if (!temp.del(x)) return;
+    UllBlock tp_block;
+    int x = lower_bound(head , head + siz , node) - head;
+    block_list.read(tp_block, offset[x]);
+//    if (!tp_block.del(x)) return;
+    //先判断是否重复
+    vector<int> ans;
+    tp_block.search(node.str,ans);
+    if (ans.empty()){
+        bool f = tp_block.add(node);
+        if (f) tp_block.split(x);//大小超出限制,需要split
 
+        block_list.write(tp_block);
+    }
+
+    return;
 }
 
 int Ull::delete_node(const UllNode &node) {
-    vector<int> p;
-    findNode(node.str, p);
-    for (int i = 0; i < p.size(); ++i) {
-        int pos = p[i];
-        block_list.Delete(pos);
-    }
+    UllBlock tp_block;
+    int x = lower_bound(head , head + siz , node) - head;
+    block_list.read(tp_block, offset[x]);
 
+    vector<int> ans;
+    tp_block.search(node.str,ans);
+    if (!ans.empty()){
+        tp_block.del(node);
+        if (tp_block.siz < xxx) tp_block.merge();
+
+        block_list.update();
+    }
+    return;
 }
 
-void Ull::find_node(const std::string &key, std::vector<int> &temp_array) { }
+void Ull::find_node(const std::string &key, std::vector<int> &temp_array) {
+    UllNode tp_node;
+    tp_node.str = key; tp_node.val = 0;
+    int x = lower_bound(head , head + siz , tp_node) - head - 1;
+    //找到key在第x块
+    int pos = offset[x];
 
-void Ull::del_block(const int &pos) {
+    UllBlock tp_block;
+//    vector<int> ans;
+    block_list.read( tp_block,pos);//如何只把块x读入到内存tp2中?
+    //这样似乎会把后面的数据全读入进去?
+    tp_block.search(key,temp_array);
+}
+
+void Ull::del_block(const int &pos) {//删除第pos块
     block_list.Delete(offset[pos]);
     for (int i = pos; i < siz; ++i) {//暴力向前移动
         offset[i] = offset[i + 1];
@@ -132,7 +161,3 @@ void Ull::del_block(const int &pos) {
     }
 }
 
-int Ull::find_position(const UllNode &node) const {
-    int _pos = lower_bound(head, head + siz, x) - head;
-    return _pos;
-}
