@@ -1,4 +1,3 @@
-//
 // Created by Leonard C on 2021/12/4.
 //
 
@@ -7,9 +6,10 @@
 
 #include <vector>
 #include <string>
-#include <unordered_map>
 #include <set>
+#include "account.h"
 #include "ull.h"
+#include "command.h"
 
 using std::unordered_map;
 using std::set;
@@ -17,29 +17,31 @@ using std::vector;
 using std::string;
 using std::cout;
 const int Maxn = 1e5;
-class Log{
-private:
-    int Time;
-    string RecordOp[Maxn];
-    vector<double> Finance;
-    unordered_map<string, vector<string>> EmployeeOp;
-    unordered_map<string, vector<string>> CustomerOp;
-    vector<string> OwnerOp;
-public:
 
-    Log() : Time(0){}
-    void report_op(const string& name){}//todo:员工操作记录指令
-    void show_finance(const int& t){}//todo:财务记录查询
-    void report_finance(){}//todo:财务记录报告
-    void report_employee(){}//todo:遍历map，输出全体员工的所有操作记录
-    void report_customer(){}//todo:顾客
-    void report_owner(){}//todo：店主
-    void log(){
-        report_finance();
-        report_employee();
-        report_customer();
-        report_owner();
-    }
+enum Behavior {AddUser, Delete, Show, Buy, Select, Modify, Import};
+struct Log {
+    class User user;
+    Behavior behavoir;
+    char description[150];
+    bool if_earn = false; // 表示是否是收入
+    double Amount;
+};
+
+class LogManagement {
+private:
+//    fstream log_data_("log");
+    int count_ = 0; // 交易笔数
+
+public:
+    LogManagement();
+
+    void Report(class Command& line, class AccountManagement& accounts);
+
+    void AddLog(Log& log); // 把 log 放进文件的同时还需要检查是否有交易
+
+    void ShowFinance(int Limit = -1); // 若为 -1，则显示全部
+
+    void Log(class Command& line); // log command，检查有无额外的 token
 };
 
 #endif //BOOKSTORE_LOG_H

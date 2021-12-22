@@ -1,5 +1,13 @@
 # Bookstore Management System
 
+## 注意：
+
+本文档已经不是实现的标准了。
+
+具体的 [**参考标准**](https://github.com/EternalFir/Bookstore-2021/blob/main/docs.md)，某些变量的命名可能会略有出入。但不影响阅读。
+
+---
+
 ## 功能概述：
 
 1. 支持账户注册、登录

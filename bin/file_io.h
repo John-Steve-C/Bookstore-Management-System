@@ -15,7 +15,6 @@ using std::ofstream;
 template<class T, int info_len = 2>
 class MemoryRiver {//一个MemoryRiver 对应一个文件
 private:
-    /* your code here */
     fstream file;
     string file_name;
     int sizeofT = sizeof(T);
@@ -62,12 +61,11 @@ public:
     //位置索引意味着当输入正确的位置索引index，在以下三个函数中都能顺利的找到目标对象进行操作
     //位置索引index可以取为对象写入的起始位置
     int write(T &t) {
-        /* your code here */
         int index;
-        int num_T, del_head;
+        int num_T, del_head;//临时声明,从文件中赋值,最后写回文件中
         get_info(num_T, 1);
         get_info(del_head, 2);
-        if(!del_head)//在文件尾部加
+        if(!del_head)//没有删除过,在文件尾部加
             index = info_len * sizeof(int) + num_T * sizeofT;
         else {//在释放掉的空间加
             index = del_head;
@@ -86,7 +84,6 @@ public:
 
     //用t的值更新位置索引index对应的对象，保证调用的index都是由write函数产生
     void update(T &t, const int index) {
-        /* your code here */
         file.open(file_name);
         file.seekp(index);
         file.write(reinterpret_cast<char*>(&t), sizeofT);
@@ -95,7 +92,6 @@ public:
 
     //读出位置索引index对应的T对象的值并赋值给t，保证调用的index都是由write函数产生
     void read(T &t, const int index) {
-        /* your code here */
         file.open(file_name);
         file.seekg(index);
         file.read(reinterpret_cast<char*>(&t), sizeofT);
@@ -103,9 +99,7 @@ public:
     }
 
     //删除位置索引index对应的对象(不涉及空间回收时，可忽略此函数)，保证调用的index都是由write函数产生
-
-    void Delete(int index) {//放入vector中
-
+    void Delete(int index) {
         int del_head;
         file.open(file_name);
         file.seekp(index);

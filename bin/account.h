@@ -8,26 +8,82 @@
 #include <unordered_map>
 #include <fstream>
 #include "ull.h"
+#include "command.h"
 
-class Account_system {
-    struct user_account{
-        string user_id;
-        string user_name;
-        string password;
-        short int priority;
-        bool login;
-        int cnt;
-    };
-    string userID;
-public:
-    void su(command a,string _user_id,string password_try) ;
-    void log_out(command a);
-    void register(command a,string _user_id,string _password_,string _user_name);
-    void passwd(command a,string _user_id,string _old_password,string _new_password);
-    void user_add(command a,string _user_id,string _password,short int _priority,string _user_name);
-    void delete(command a,string _user_id);
+struct UserID {
+    char value[31];
+
+    UserID(std::string userID);
+
+    UserID() = default;
+
+    std::string get_UserID() const;
+
+    bool operator==(const UserID &rhs) const;
+
+    bool operator<(const UserID &rhs) const;
+};
+
+class User {
 private:
-    unordered_map(std::string,user_account);
+    char user_name[31];
+    int priority;
+
+public:
+    UserID ID;
+    char password[31];
+
+    User() = default;
+
+    User(const std::string &data);
+
+    User(const std::string &_ID, const std::string &_name,
+         const std::string &_password, int _priority = 0);
+
+    void change_password(const std::string &newPassword);
+
+    [[nodiscard]] int get_priority() const;
+    //nodiscard说明该函数的返回值必须被调用
+
+};
+
+struct LogInAccount {
+    User user;
+    int selected_book_id;
+};
+
+class AccountManagement {
+private:
+    int num;
+    std::vector<LogInAccount> login_stack; // 用于储存登录的账户及其选定的书本 id，不可使用 ISBN 作为指定对象，因为 ISBN 可能会被之后其他用户改变
+    //登录栈
+
+    MemoryRiver<User, 1> user_data; // 用于储存所有数据的文件
+    //预留首位用来存储块数
+
+    Ull id_to_pos; // 第一个 int 忽略即可，填入时用 0 就行
+    //相当于一个映射关系,把userID映射到对应的文件位置
+
+public:
+    AccountManagement(); // 注意检查是否有用户名为 root，密码为 sjtu，权限为 {7} 的超级管理员账户，如没有，则添加该用户
+
+    void switch_User(Command &line); // su command
+
+    void LogOut(Command &line); // logout command
+
+    void register_User(Command &line); // register command
+    //权限为0,只能加顾客
+
+    void change_password(Command &line); // passwd command
+
+    void add_User(Command &line, LogManagement &logs); // useradd command
+    //权限为3,可以加员工
+
+    void remove_User(Command &line, LogManagement &logs); // delete command
+
+    void User_select(int book_id); // 对于当前用户选中对象
+
+    [[nodiscard]] int get_current_Priority() const;
 };
 
 #endif //BOOKSTORE_ACCOUNT_H

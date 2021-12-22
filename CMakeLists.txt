@@ -10,6 +10,10 @@ include_directories(
 )
 set(src_dir
         ${PROJECT_SOURCE_DIR}/src/main.cpp
+        ${PROJECT_SOURCE_DIR}/bin/command.cpp
+        ${PROJECT_SOURCE_DIR}/bin/bookdatabase.cpp
+        ${PROJECT_SOURCE_DIR}/bin/account.cpp
+        ${PROJECT_SOURCE_DIR}/bin/log.cpp
         )
 add_executable(code ${src_dir})
 

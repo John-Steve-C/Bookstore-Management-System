@@ -3,11 +3,14 @@
 #include <ctime>
 
 #include "ull.h"
-#include "file_io.h"
-//#include "account.h"
-//#include "bookdatabase.h"
-//#include "log.h"
+#include "command.h"
+#include "account.h"
+#include "bookdatabase.h"
+#include "log.h"
 
+void init();
+void process();
+void string_to_char();
 int main() {
     // ! Notice
     // If you are using dynamic-link library, the DLL
@@ -23,11 +26,14 @@ int main() {
 
     // Initialize ULL with file name
     Ull testUll("test.dat");
+    string s;
+    cin >> s;
+    Command get_info(s);
 
     // Save current time(hhmmss as integer) to file
     auto tt = time(nullptr);
     auto currentTime = localtime(&tt);
-    testUll.addNode(UllNode(currentTime->tm_hour * 10000
+    testUll.add_node(UllNode(currentTime->tm_hour * 10000
                             + currentTime->tm_min * 100
                             + currentTime->tm_sec,
                             "Bello ACM!"));
@@ -36,6 +42,8 @@ int main() {
     std::vector<int> retVec;
     testUll.findNode("Bello ACM!", retVec);
     for (auto item:retVec) std::cout << item << std::endl;
+
+
 
     return 0;
 }
