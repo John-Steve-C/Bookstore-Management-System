@@ -5,10 +5,13 @@
 #ifndef BOOKSTORE_ACCOUNT_H
 #define BOOKSTORE_ACCOUNT_H
 
-#include <unordered_map>
-#include <fstream>
 #include "ull.h"
 #include "command.h"
+#include "log.h"
+#include "Exception.h"
+
+#include <fstream>
+#include <cstdio>
 
 struct UserID {
     char value[31];
@@ -25,13 +28,14 @@ struct UserID {
 };
 
 class User {
+    friend class AccountManagement;
 private:
     char user_name[31];
     int priority;
+    char password[31];
 
 public:
     UserID ID;
-    char password[31];
 
     User() = default;
 
@@ -49,10 +53,11 @@ public:
 
 struct LogInAccount {
     User user;
-    int selected_book_id;
+    int selected_book_id = 0;
 };
 
 class AccountManagement {
+    friend class BookManagement;
 private:
     int num;
     std::vector<LogInAccount> login_stack; // 用于储存登录的账户及其选定的书本 id，不可使用 ISBN 作为指定对象，因为 ISBN 可能会被之后其他用户改变
@@ -63,13 +68,14 @@ private:
 
     Ull id_to_pos; // 第一个 int 忽略即可，填入时用 0 就行
     //相当于一个映射关系,把userID映射到对应的文件位置
+    //就是索引文件
 
 public:
     AccountManagement(); // 注意检查是否有用户名为 root，密码为 sjtu，权限为 {7} 的超级管理员账户，如没有，则添加该用户
 
     void switch_User(Command &line); // su command
 
-    void LogOut(Command &line); // logout command
+    void LogOut(); // logout command
 
     void register_User(Command &line); // register command
     //权限为0,只能加顾客
@@ -81,7 +87,7 @@ public:
 
     void remove_User(Command &line, LogManagement &logs); // delete command
 
-    void User_select(int book_id); // 对于当前用户选中对象
+    void User_select(int book_id); // 对于当前用户选中书本
 
     [[nodiscard]] int get_current_Priority() const;
 };

@@ -1,49 +1,58 @@
 #include <iostream>
-
-#include <ctime>
+#include <string>
 
 #include "ull.h"
 #include "command.h"
 #include "account.h"
 #include "bookdatabase.h"
 #include "log.h"
+#include "Exception.h"
 
-void init();
-void process();
-void string_to_char();
 int main() {
-    // ! Notice
-    // If you are using dynamic-link library, the DLL
-    // file (filename extension is `.so` in Linux and
-    // `.dll` in Windows) must be in a location that
-    // the executable file can directly access(that is,
-    // under the same folder or under system PATH),
-    // otherwise it cannot run.
-    // But if you are using the statically-linked library
-    // (filename extension is `.a` in Linux and `.lib`
-    // in Windows), the executable file can run without
-    // any other file.
 
-    // Initialize ULL with file name
-    Ull testUll("test.dat");
-    string s;
-    cin >> s;
-    Command get_info(s);
+    string command_input;
+    AccountManagement accounts;
+    BookManagement books;
+    LogManagement logs;
 
-    // Save current time(hhmmss as integer) to file
-    auto tt = time(nullptr);
-    auto currentTime = localtime(&tt);
-    testUll.add_node(UllNode(currentTime->tm_hour * 10000
-                            + currentTime->tm_min * 100
-                            + currentTime->tm_sec,
-                            "Bello ACM!"));
+    while (getline(cin, command_input)) {
+        try {
+            Command cmd(command_input);
+            string order = cmd.next_token();
 
-    // Print all entries in file.
-    std::vector<int> retVec;
-    testUll.findNode("Bello ACM!", retVec);
-    for (auto item:retVec) std::cout << item << std::endl;
+            //todo:account_system
+            if (order == "su") accounts.switch_User(cmd);
+            else if (order == "logout") accounts.LogOut();
+            else if (order == "register") accounts.register_User(cmd);
+            else if (order == "passwd") accounts.change_password(cmd);
+            else if (order == "useradd") accounts.add_User(cmd, logs);
+            else if (order == "delete") accounts.remove_User(cmd, logs);
 
+            //todo:book_system
+            else if (order == "show") {
+                Command temp_cmd(cmd);
+                if (temp_cmd.next_token() == "finance") {
+                    //说明是日志
+                    string limit = temp_cmd.next_token();
+                    if (limit.empty()) logs.ShowFinance();
+                    else logs.ShowFinance(stoi(limit));
+                } else {//说明是书本
+                    books.Show(cmd, accounts, logs);
+                }
+            }
+            else if (order == "buy") books.Buy(cmd, accounts, logs);
+            else if (order == "select") books.Select(cmd, accounts, logs);
+            else if (order == "modify") books.Modify(cmd, accounts, logs);
+            else if (order == "import") books.ImportBook(cmd, accounts, logs);
 
+            //todo:log_system
+            else if (order == "report") {}
+            else if (order == "log") {}
+        }
+        catch (Exception &s) {
+            cout << s.what();
+        }
+    }
 
     return 0;
 }

@@ -10,103 +10,119 @@
 #include <vector>
 
 #include "command.h"
+#include "account.h"
 #include "ull.h"
 #include "log.h"
+#include "Exception.h"
 
 using std::string;
 
 struct ISBN {
-    char[21] value;
+    char value[61];
 
-    ISBN(const std::string& s);
+    ISBN() = default;
 
-    bool operator==(const ISBN& rhs) const;
+    ISBN(const std::string &s);
 
-    bool operator<(const ISBN& rhs) const;
+    bool operator==(const ISBN &rhs) const;
+
+    bool operator<(const ISBN &rhs) const;
 };
 
 struct BookName {
-    char[61] value;
+    char value[61];
 
-    BookName(const std::string& s);
+    BookName() = default;
 
-    bool operator==(const BookName& rhs) const;
+    BookName(const std::string &s);
 
-    bool operator<(const BookName& rhs) const;
+    bool operator==(const BookName &rhs) const;
+
+    bool operator<(const BookName &rhs) const;
 };
 
 struct Author {
-    char[61] value;
+    char value[61];
 
-    Author(const std::string& s);
+    Author() = default;
 
-    bool operator==(const Author& rhs) const;
+    Author(const std::string &s);
 
-    bool operator<(const Author& rhs) const;
+    bool operator==(const Author &rhs) const;
+
+    bool operator<(const Author &rhs) const;
 };
 
 struct Keyword {
-    char [61] value;
+    char value[61];
 
-    Keyword(const std::string& s);
+    Keyword() = default;
 
-    bool operator==(const Keyword& rhs) const;
+    Keyword(const std::string &s);
 
-    bool operator<(const Keyword& rhs) const;
+    bool operator==(const Keyword &rhs) const;
+
+    bool operator<(const Keyword &rhs) const;
 };
 
 class Book {
+    friend class BookManagement;
+
 private:
-    ISBN isbn_;
-    BookName book_name_;
-    Author author_;
-    Keyword keyword_;
-    int quantity_ = 0;
-    double price_ = 0;
-    double total_cost_ = 0;
+    ISBN isbn;
+    BookName book_name;
+    Author author;
+    Keyword keyword;
+    //todo:keyword 可以有多个!!
+//    vector<Keyword> keyword;
+    int quantity = 0;
+    double price = 0;
+    double total_cost = 0;
 
 public:
-    int book_ID_;
+    int book_ID;
 
-    Book();
+    Book() = default;
 
-    Book(int id, const std::string& isbn, const std::string& bookName, const std::string& author, const std::string& keyword, int quantity, double price, double _total_cost); // 这样方便构造，但注意 keyword 需要以升序重新排列
+    // 这样方便构造，但注意 keyword 需要以升序重新排列
+    Book(int _id, const std::string &_isbn, const std::string &_bookName,
+         const std::string &_author, const std::string &_keyword,
+         int _quantity, double _price, double _total_cost);
 
-    Book(int id, const std::string& isbn); // 将除 ISBN 以外的部分全部为空字符串或 0
+    Book(int id, const std::string &isbn); // 将除 ISBN 以外的部分全部为空字符串或 0
 
-
-
-    friend std::ostream& operator<<(std::ostream&, const Book& book); // 用于输出
+    friend std::ostream &operator<<(std::ostream &output, const Book &book); // 用于输出
 };
 
 class BookManagement {
 private:
-    fstream book_data_("book_data"); // 用于储存所有数据的文件
+    int num = 0; //当前的书本总数,存放在book_data的第一个位置
+    MemoryRiver<Book, 1> book_data; // 用于储存所有数据的文件
 
-    UnrolledLinkedList<book_name_index, ISBN, int, int> isbn_map_; // 第一个 int 忽略即可，填入时用 0 就行
-
-    UnrolledLinkedList<book_name_index, BookName, ISBN, int> book_name_index_;
-
-    UnrolledLinkedList<author_map_index, Author, ISBN, int> author_map_index_;
-
-    UnrolledLinkedList<keyword_index, Keyword, ISBN, int> keyword_index_;
-
-    // Other private variables ...
+    //按照不同关键子进行排序的块状链表
+    //其实就是索引文件
+    Ull id_to_pos;
+    Ull isbn_to_pos;
+    Ull name_to_pos;
+    Ull author_to_pos;
+    Ull keyword_to_pos;
+    //如何修改?
 
 public:
-    BookManagement();
-
+    BookManagement() = default;
     // 下面的指令请调用 accounts::getCurrentPriority() 来获取权限
+    void Show(Command &line, AccountManagement &accounts,
+              LogManagement &logs);
+    // 先判断是不是 show finance（都是以 show 开头），然后分四种情况讨论，如无参数，则按照 ISBN 输出全部（traverse 函数）
+    // 我把这个判断的过程放在main函数中实现,事实上line中的cur在第二个关键词
 
-    void Show(TokenScanner& line, AccountManagement& accounts, LogManagement& logs); // 先判断是不是 show finance（都是以 show 开头），然后分四种情况讨论，如无参数，则按照 ISBN 输出全部（traverse 函数）
+    void Buy(Command &line, AccountManagement &accounts, LogManagement &logs);
 
-    void Buy(TokenScanner& line, AccountManagement& accounts, LogManagement& logs);
+    void Select(Command &line, AccountManagement &accounts, LogManagement &logs); // 检查是否有权限，检查是否有 ISBN，然后选中
 
-    void Select(TokenScanner& line, AccountManagement& accounts, LogManagement& logs); // 检查是否有权限，检查是否有 ISBN，然后选中
+    void Modify(Command &line, AccountManagement &accounts, LogManagement &logs); // 检查是否有权限
 
-    void Modify(TokenScanner& line, AccountManagement& accounts, LogManagement& logs); // 检查是否有权限
-
-    void ImportBook(TokenScanner& line, AccountManagement& accounts, LogManagement& logs); // 检查是否有权限
+    void ImportBook(Command &line, AccountManagement &accounts, LogManagement &logs); // 检查是否有权限
 };
 
 #endif //BOOKSTORE_BOOKDATABASE_H

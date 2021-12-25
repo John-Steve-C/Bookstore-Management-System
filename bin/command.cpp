@@ -1,8 +1,5 @@
 #include "command.h"
 
-using std::string;
-using std::fstream;
-
 //class Command
 
 Command::Command(char _delimiter) {
@@ -18,6 +15,8 @@ Command::Command(const Command &rhs) {
 Command::Command(const std::string &in, char _delimiter) {
     delimiter = _delimiter;
     buffer = in;
+    cur = 0;//过滤行首的分隔符
+    while (buffer[cur] == delimiter) cur++;
 }
 
 string Command::next_token() {
@@ -38,6 +37,7 @@ string Command::next_token() {
 void Command::clear() {
     buffer = "";
     cur = 0;
+    delimiter = ' ';
     return;
 }
 

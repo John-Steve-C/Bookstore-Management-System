@@ -5,15 +5,13 @@
 #ifndef BOOKSTORE_COMMAND_H
 #define BOOKSTORE_COMMAND_H
 
-#include "account.h"
-#include "log.h"
-#include "bookdatabase.h"
-
 #include <string>
 #include <ostream>
+#include <istream>
 
 using std::string;
-using std::fstream;
+using std::istream;
+using std::ostream;
 
 class Command {
 private:

@@ -6,22 +6,21 @@
 
 #include <vector>
 #include <string>
-#include <set>
-#include "account.h"
+
+//#include "account.h"
 #include "ull.h"
+#include "file_io.h"
 #include "command.h"
 
-using std::unordered_map;
-using std::set;
 using std::vector;
 using std::string;
-using std::cout;
 const int Maxn = 1e5;
 
 enum Behavior {AddUser, Delete, Show, Buy, Select, Modify, Import};
-struct Log {
-    class User user;
-    Behavior behavoir;
+class Log {
+public:
+//    User user;
+//    Behavior behavoir;
     char description[150];
     bool if_earn = false; // 表示是否是收入
     double Amount;
@@ -29,19 +28,19 @@ struct Log {
 
 class LogManagement {
 private:
-//    fstream log_data_("log");
+    MemoryRiver<Log, 1> log_data;
     int count_ = 0; // 交易笔数
 
 public:
     LogManagement();
 
-    void Report(class Command& line, class AccountManagement& accounts);
+//    void Report(Command& line, AccountManagement& accounts);
 
     void AddLog(Log& log); // 把 log 放进文件的同时还需要检查是否有交易
 
-    void ShowFinance(int Limit = -1); // 若为 -1，则显示全部
+    void ShowFinance(int limit = -1); // 若为 -1，则显示全部
 
-    void Log(class Command& line); // log command，检查有无额外的 token
+    void Log_ch(Command& line); // log command，检查有无额外的 token
 };
 
 #endif //BOOKSTORE_LOG_H

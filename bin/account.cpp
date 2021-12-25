@@ -44,11 +44,13 @@ int User::get_priority() const {
 //class AccountManegement
 
 AccountManagement::AccountManagement() {
-    //加入root账户
     user_data.initialise("user_data");
-//    id_to_pos 如何初始哈?
     num = 0;
-//    User("root", , ,7);
+
+    //加入root账户
+    User root("0", "root", "sjtu", 7);
+    int pos = user_data.write(root);
+    id_to_pos.add_node(UllNode(root.ID.value, pos));
 }
 
 void AccountManagement::switch_User(Command &line) {
@@ -56,7 +58,7 @@ void AccountManagement::switch_User(Command &line) {
     vector<int> ans;
     id_to_pos.find_node(ID, ans);
     if (ans.empty()) {
-
+        throw Exception("Invalid\n");
     }//重复注册,失败
 
     int cur_priority = get_current_Priority();
@@ -76,9 +78,9 @@ void AccountManagement::switch_User(Command &line) {
 
     //权限不够
     // 没输入密码,或者密码错误
-    if (s.empty() || strcmp(s.c_str(), temp.password)) {
+    if (s.empty() || strcmp(s.c_str(), temp.password) != 0) {
         //异常判断:密码错误
-
+        throw Exception("Invalid\n");
     } else {
         LogInAccount tp;
         tp.user = temp;
@@ -88,13 +90,12 @@ void AccountManagement::switch_User(Command &line) {
     }
 }
 
-void AccountManagement::LogOut(Command &line) {
+void AccountManagement::LogOut() {
     if (login_stack.empty()) {
-
+        throw Exception("Invalid\n");
     }    //没有登录账户,异常
 
     login_stack.pop_back();
-    return;
 }
 
 void AccountManagement::register_User(Command &line) {
@@ -105,7 +106,7 @@ void AccountManagement::register_User(Command &line) {
     vector<int> ans;
     id_to_pos.find_node(_ID, ans);
     if (!ans.empty()) {
-
+        throw Exception("Invalid\n");
     } //重复,失败
 
     User temp(_ID, _name, _password, 1);
@@ -122,13 +123,13 @@ void AccountManagement::add_User(Command &line, LogManagement &logs) {
 
     if (get_current_Priority() < _priority[0] - '0' ||
         get_current_Priority() < 3) {//权限不足,失败
-
+        throw Exception("Invalid\n");
     }
 
     vector<int> ans;
     id_to_pos.find_node(_ID, ans);
     if (!ans.empty()) {
-
+        throw Exception("Invalid\n");
     } //重复,失败
 
     User temp(_ID, _name, _password, _priority[0] - '0');
@@ -144,7 +145,7 @@ void AccountManagement::change_password(Command &line) {
     vector<int> ans;
     id_to_pos.find_node(ID, ans);
     if (ans.empty()) {
-
+        throw Exception("Invalid\n");
     } //不存在,失败
 
     User temp;
@@ -159,7 +160,7 @@ void AccountManagement::change_password(Command &line) {
 
     if (strcmp(temp.password, old_password.c_str() ) != 0) {
         //密码错误
-
+        throw Exception("Invalid\n");
     } else {
         temp.change_password(new_password);
         user_data.update(temp, ans[0]);
@@ -173,19 +174,20 @@ int AccountManagement::get_current_Priority() const {
 void AccountManagement::remove_User(Command &line, LogManagement &logs) {
     if (get_current_Priority() < 7) {
         //权限不足
+        throw Exception("Invalid\n");
     }
 
     string ID = line.next_token();
     vector<int> ans;
     id_to_pos.find_node(ID, ans);
     if (ans.empty()) {
-
+        throw Exception("Invalid\n");
     } //不存在,失败
 
     //已经登录,失败
     for (auto item:login_stack){
         if (item.user.ID.get_UserID() == ID) {
-
+            throw Exception("Invalid\n");
         }
     }
 
@@ -194,4 +196,6 @@ void AccountManagement::remove_User(Command &line, LogManagement &logs) {
     id_to_pos.delete_node(UllNode(ID, ans[0]));
 }
 
-void AccountManagement::User_select(int book_id) {}
+void AccountManagement::User_select(int book_id) {
+    login_stack.back().selected_book_id = book_id;
+}
