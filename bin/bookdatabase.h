@@ -97,7 +97,7 @@ public:
 class BookManagement {
 private:
     int num = 0; //当前的书本总数,存放在book_data的第一个位置
-    MemoryRiver<Book, 1> book_data; // 用于储存所有数据的文件
+    MemoryRiver<Book> book_data; // 用于储存所有数据的文件
 
     //按照不同关键子进行排序的块状链表
     //其实就是索引文件
@@ -109,7 +109,7 @@ private:
     //如何修改?
 
 public:
-    BookManagement() = default;
+    BookManagement();
     // 下面的指令请调用 accounts::getCurrentPriority() 来获取权限
     void Show(Command &line, AccountManagement &accounts,
               LogManagement &logs);

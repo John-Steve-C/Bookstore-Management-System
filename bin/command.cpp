@@ -24,12 +24,12 @@ string Command::next_token() {
     string temp = "";
     if (cur >= len) return temp;
 
-    while (buffer[j] != delimiter && cur < len){
+    while (buffer[j] != delimiter && j < len && buffer[j] != '\r'){
         temp += buffer[j];
         j++;
     }
 
-    while (buffer[j] == delimiter && cur < len) j++;
+    while (buffer[j] == delimiter && j < len && buffer[j] != '\r') j++;
     cur = j;
     return temp;
 }
@@ -53,6 +53,4 @@ ostream &operator<<(ostream &os, const Command &command) {
 
 void Command::set_delimiter(char new_delimiter) {
     delimiter = new_delimiter;
-    cur = 0;
-    return;
 }

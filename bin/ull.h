@@ -39,11 +39,12 @@ public:
 
     UllNode() = default;
 
-    UllNode(const std::string &arg2, const int &value, const int &arg1 = 0) {
-        offset = arg1;
-        strcpy(str, arg2.c_str());
+    UllNode(const std::string &arg1, const int &value, const int &arg2 = 0) {
+        //arg1是第一关键字,arg2同理
+        strcpy(str, arg1.c_str());
         //注意转换，存储的是char[]，读入的是string
         val = value;
+        offset = arg2;
     }
 
     bool operator<(const UllNode &x) const {//重载小于号,用于lower_bound
@@ -147,6 +148,9 @@ public:
 };
 
 class Ull {//专门用来处理与文件交互的操作
+//    friend class AccountManagement;
+//    friend class BookManagement;
+//    friend class LogManagement;
 private:
     const std::string file_name;
     int num, fpos;//块的个数和头指针
@@ -169,6 +173,12 @@ public:
         fpos = 8;
     }
 
+    void init(const std::string &file) {
+        block_list.initialise(file);
+        num = 0;
+        fpos = 8;
+    }
+
     ~Ull() = default;
 
     void find_node(const std::string &key, std::vector<int> &temp_array) {
@@ -184,15 +194,15 @@ public:
 
     void add_node(const UllNode &node) {
         UllBlock new_block;
-        block_list.get_info(num, 1);
         if (!num) {//第一次
             new_block.siz = 1;
             new_block.array[0] = node;
             new_block.pos = block_list.write(new_block);
             block_list.update(new_block, new_block.pos);
             //注意,要更新到文件里
-            num++;
-            block_list.write_info(num, 1);
+            //以下两行代码,已经由上述的write在MemoryRiver中实现
+//            num++;
+//            block_list.write_info(num, 1);
         } else {
             int cnt = 0;//cnt是当前遍历到第几块
             for (int i = fpos; i; i = new_block.nxt) {
@@ -230,9 +240,10 @@ public:
 
     void split_block(const int &pos) {
         UllBlock tp_block, new_block;
-        block_list.get_info(num, 1);
-        num++;
-        block_list.write_info(num, 1);
+        //在下方的write中已经更新
+//        block_list.get_info(num, 1);
+//        num++;
+//        block_list.write_info(num, 1);
 
         block_list.read(tp_block, pos);
 
@@ -254,9 +265,9 @@ public:
         if (pos == 8) return;//头节点
         UllBlock tp_block, pre_block, nxt_block;
 
-        block_list.get_info(num, 1);
-        num--;
-        block_list.write_info(num, 1);
+//        block_list.get_info(num, 1);
+//        num--;
+//        block_list.write_info(num, 1);
 
         block_list.read(tp_block, pos);
         block_list.read(pre_block, tp_block.pre);

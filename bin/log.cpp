@@ -2,6 +2,9 @@
 
 //class LogManagement
 
+LogManagement::LogManagement() {
+    log_data.initialise("log_data");
+}
 void LogManagement::ShowFinance(int limit) {
     //进入前应当进行权限判断
     //time = 0
@@ -15,7 +18,7 @@ void LogManagement::ShowFinance(int limit) {
 
     //超限,失败
     if (limit > num) {
-
+        throw Exception("Invalid\n");
     }
     //没有参数,全部输出
     if (limit == -1) {limit = num;}
@@ -32,7 +35,7 @@ void LogManagement::ShowFinance(int limit) {
     cout << "+ " << inc << " - " << dec << "\n";
 }
 
-//void LogManagement::Report(Command &line, AccountManagement &accounts) {}
+void LogManagement::Report(Command &line, AccountManagement &accounts) {}
 
 void LogManagement::Log_ch(Command &line) {}
 

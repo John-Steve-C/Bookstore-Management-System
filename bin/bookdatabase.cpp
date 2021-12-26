@@ -77,11 +77,22 @@ Book::Book(int _id, const std::string &_isbn) {
 }
 
 ostream &operator<<(ostream &output, const Book &obj) {
-    output << obj.isbn.value;
+    output << obj.isbn.value << '\t' << obj.book_name.value << '\t'
+           << obj.author.value << '\t' << obj.keyword.value << '\t'
+           << obj.price << '\t' << obj.quantity << '\n';
     return output;
 }
 
 //class BookManagement
+
+BookManagement::BookManagement() {
+    book_data.initialise("book_data");
+    id_to_pos.init("book_id_to_pos");
+    isbn_to_pos.init("isbn_to_pos");
+    name_to_pos.init("name_to_pos");
+    author_to_pos.init("author_to_pos");
+    keyword_to_pos.init("keyword_to_pos");
+}
 
 void BookManagement::Select(Command &line, AccountManagement &accounts, LogManagement &logs) {
     if (accounts.get_current_Priority() < 3) {
@@ -97,8 +108,8 @@ void BookManagement::Select(Command &line, AccountManagement &accounts, LogManag
         book_data.get_info(num, 1);
         num++;
         Book temp(num, _isbn);
-        book_data.write_info(num, 1);
-
+//        book_data.write_info(num, 1);
+        //不需要，因为下面有个write
         int pos = book_data.write(temp);
         id_to_pos.add_node(UllNode(to_string(num), pos));
         isbn_to_pos.add_node(UllNode(_isbn, pos));
@@ -111,6 +122,7 @@ void BookManagement::Select(Command &line, AccountManagement &accounts, LogManag
 }
 
 //book_data和..._to_pos都要修改,但是id_to_pos不变
+//注意特判，如果修改的ISBN与原来相同,那么就不对
 void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManagement &logs) {
     if (accounts.get_current_Priority() < 3) {
         throw Exception("Invalid\n");
@@ -136,22 +148,43 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
             if (_name.empty()) {
                 for (int i = 7; i < temp_command.length() - 1; ++i)
                     _name += temp_command[i];
+                //更新数据
+                name_to_pos.delete_node(UllNode(new_book.book_name.value, ans[0]));
+                name_to_pos.add_node(UllNode(_name, ans[0]));
                 strcpy(new_book.book_name.value, _name.c_str());
             } else { //重复指定参数
                 throw Exception("Invalid\n");
             }
         }
 
-        if (temp_command[1] == 'K') {
-            for (int i = 10; i < temp_command.length() - 1; ++i) {
-                //判断 |
-                _keyword += temp_command[i];
+        if (temp_command[1] == 'k') {
+            //更改分隔符
+            string s = temp_command.substr(10, temp_command.length() - 11);
+            Command new_key(s, '|'), old_key(new_book.keyword.value, '|');
+            //old是旧的keyword
+            string ns = new_key.next_token(), os = old_key.next_token();
+            //先判断是否冲突，再删除旧的对应关系?
+            //直接全部暴力删除
+            while (!os.empty()) {
+                keyword_to_pos.delete_node(UllNode(os, ans[0]));
+                os = old_key.next_token();
             }
+            while (!ns.empty()) {
+                keyword_to_pos.add_node(UllNode(s, ans[0]));
+                ns = new_key.next_token();
+            }
+            strcpy(new_book.keyword.value, s.c_str());
         }
         if (temp_command[1] == 'I') {
             if (_isbn.empty()) {
                 for (int i = 7; i < temp_command.length() - 1; ++i)
                     _isbn += temp_command[i];
+                //不能修改相同的isbn
+                if (strcmp(new_book.isbn.value, _isbn.c_str()) == 0) {
+                    throw Exception("Invalid\n");
+                }
+                isbn_to_pos.delete_node(UllNode(new_book.isbn.value, ans[0]));
+                isbn_to_pos.add_node(UllNode(_isbn, ans[0]));
                 strcpy(new_book.isbn.value, _isbn.c_str());
             } else {
                 throw Exception("Invalid\n");
@@ -161,6 +194,8 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
             if (_author.empty()) {
                 for (int i = 9; i < temp_command.length() - 1; ++i)
                     _author += temp_command[i];
+                author_to_pos.delete_node(UllNode(new_book.author.value, ans[0]));
+                author_to_pos.add_node(UllNode(_author, ans[0]));
                 strcpy(new_book.author.value, _author.c_str());
             } else {
                 throw Exception("Invalid\n");
@@ -170,6 +205,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
             if (_price.empty()) {
                 for (int i = 8; i < temp_command.length() - 1; ++i)
                     _price += temp_command[i];
+                //没有映射关系,不用修改
                 new_book.price = stod(_price);
             } else {
                 throw Exception("Invalid\n");
@@ -194,16 +230,13 @@ void BookManagement::ImportBook(Command &line, AccountManagement &accounts, LogM
         throw Exception("Invalid\n");
     }
 
-    double _tot = stod(s);
     int _id = accounts.login_stack.back().selected_book_id;
     Book temp;
     vector<int> ans;
     id_to_pos.find_node(to_string(_id), ans);
     book_data.read(temp, ans[0]);
-    int cnt = _tot / temp.price;
-    temp.quantity += cnt;
-
-    temp.total_cost -= _tot;
+    temp.quantity += stoi(_quantity);
+    temp.total_cost += stod(s);
 
     book_data.update(temp, ans[0]);
 }
@@ -245,37 +278,89 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
 
     string temp = line.next_token();
     string _name, _isbn, _author, _keyword;
+    vector<int> ans;
 
     //没有参数,说明全部都要输出
     if (temp.empty()) {}
 
-    while (!temp.empty()) {
-        if (temp[1] == 'n') {
-            for (int i = 7; i < temp.length() - 1; ++i)
-                _name += temp[i];
-        }
-        if (temp[1] == 'K') {
-            for (int i = 10; i < temp.length() - 1; ++i) {
-                //判断 |
-                _keyword += temp[i];
+    if (temp[1] == 'n') {
+        for (int i = 7; i < temp.length() - 1; ++i)
+            _name += temp[i];
+        if (_name.empty()) {
+            throw Exception("Invalid\n");
+        } else {
+            name_to_pos.find_node(_name, ans);
+            if (!ans.empty()) {
+                for (int i = 0; i < ans.size(); ++i) {
+                    Book temp;
+                    book_data.read(temp, ans[i]);
+                    cout << temp;
+                }
+            } else {
+                cout << '\n';
             }
+            return;
         }
-        if (temp[1] == 'I') {
-            for (int i = 7; i < temp.length() - 1; ++i)
-                _isbn += temp[i];
-        }
-        if (temp[1] == 'a') {
-            for (int i = 9; i < temp.length() - 1; ++i)
-                _author += temp[i];
-        }
-        temp = line.next_token();
     }
-
-    //多关键字匹配,理论上最后只有一本书
-    vector<int> ans;
-    isbn_to_pos.find_node(_isbn, ans);
-
-    name_to_pos.find_node(_name, ans);
-    author_to_pos.find_node(_author, ans);
-    keyword_to_pos.find_node(_keyword, ans);
+    if (temp[1] == 'K') {
+        for (int i = 10; i < temp.length() - 1; ++i) {
+            if (temp[i] == '|') {
+                throw Exception("Invalid\n");
+            }//判断 | ,此处只会有一个关键词
+            _keyword += temp[i];
+        }
+        if (_keyword.empty()) {
+            throw Exception("Invalid\n");
+        } else {
+            keyword_to_pos.find_node(_keyword, ans);
+            if (!ans.empty()) {
+                for (int i = 0; i < ans.size(); ++i) {
+                    Book temp;
+                    book_data.read(temp, ans[i]);
+                    cout << temp;
+                }
+            } else {
+                cout << '\n';
+            }
+            return;
+        }
+    }
+    if (temp[1] == 'I') {
+        for (int i = 7; i < temp.length() - 1; ++i)
+            _isbn += temp[i];
+        if (_isbn.empty()) {
+            throw Exception("Invalid\n");
+        } else {
+            isbn_to_pos.find_node(_isbn, ans);
+            if (!ans.empty()) {
+                for (int i = 0; i < ans.size(); ++i) {
+                    Book temp;
+                    book_data.read(temp, ans[i]);
+                    cout << temp;
+                }
+            } else {
+                cout << '\n';
+            }
+            return;
+        }
+    }
+    if (temp[1] == 'a') {
+        for (int i = 9; i < temp.length() - 1; ++i)
+            _author += temp[i];
+        if (_author.empty()) {
+            throw Exception("Invalid\n");
+        } else {
+            author_to_pos.find_node(_author, ans);
+            if (ans.empty()) {
+                for (int i = 0; i < ans.size(); ++i) {
+                    Book temp;
+                    book_data.read(temp, ans[i]);
+                    cout << temp;
+                }
+            } else {
+                cout << '\n';
+            }
+            return;
+        }
+    }
 }

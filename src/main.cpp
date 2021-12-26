@@ -10,6 +10,8 @@
 
 int main() {
 
+    freopen("test.in","r",stdin); freopen("ans.txt","w",stdout);
+
     string command_input;
     AccountManagement accounts;
     BookManagement books;
@@ -20,6 +22,9 @@ int main() {
             Command cmd(command_input);
             string order = cmd.next_token();
 
+            if (order == "exit" || order == "quit") {
+                return 0;
+            }
             //todo:account_system
             if (order == "su") accounts.switch_User(cmd);
             else if (order == "logout") accounts.LogOut();
@@ -48,6 +53,9 @@ int main() {
             //todo:log_system
             else if (order == "report") {}
             else if (order == "log") {}
+
+            //todo:错误的情况
+            else throw Exception("Invalid\n");
         }
         catch (Exception &s) {
             cout << s.what();

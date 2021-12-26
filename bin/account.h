@@ -63,7 +63,7 @@ private:
     std::vector<LogInAccount> login_stack; // 用于储存登录的账户及其选定的书本 id，不可使用 ISBN 作为指定对象，因为 ISBN 可能会被之后其他用户改变
     //登录栈
 
-    MemoryRiver<User, 1> user_data; // 用于储存所有数据的文件
+    MemoryRiver<User> user_data; // 用于储存所有数据的文件
     //预留首位用来存储块数
 
     Ull id_to_pos; // 第一个 int 忽略即可，填入时用 0 就行
@@ -72,6 +72,8 @@ private:
 
 public:
     AccountManagement(); // 注意检查是否有用户名为 root，密码为 sjtu，权限为 {7} 的超级管理员账户，如没有，则添加该用户
+
+    AccountManagement(const string &file_name); // 注意检查是否有用户名为 root，密码为 sjtu，权限为 {7} 的超级管理员账户，如没有，则添加该用户
 
     void switch_User(Command &line); // su command
 

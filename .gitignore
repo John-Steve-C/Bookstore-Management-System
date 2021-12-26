@@ -2,3 +2,14 @@
 cmake-build-*/
 test*/
 asset/
+src/account_id_to_pos
+src/author_to_pos
+src/book_data
+src/book_id_to_pos
+src/isbn_to_pos
+src/keyword_to_pos
+src/log_data
+src/name_to_pos
+src/user_data
+src/test.in
+src/ans.txt

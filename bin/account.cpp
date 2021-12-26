@@ -44,22 +44,36 @@ int User::get_priority() const {
 //class AccountManegement
 
 AccountManagement::AccountManagement() {
-    user_data.initialise("user_data");
-    num = 0;
+    user_data.initialise("user_data");//MemoryRiver
+    id_to_pos.init("account_id_to_pos");//ull
 
-    //加入root账户
-    User root("0", "root", "sjtu", 7);
+    num = 0;
+    //加入root账户,注意判断是否已经存在root,防止重复加入
+    //root是ID
+    User root("root", "", "sjtu", 7);
+    user_data.get_info(num, 1);
+    if (num) return; //已经存在
     int pos = user_data.write(root);
+
     id_to_pos.add_node(UllNode(root.ID.value, pos));
 }
 
+AccountManagement::AccountManagement(const string &file_name) {
+    user_data.initialise("user_data");
+    id_to_pos.init(file_name);
+
+}
+
 void AccountManagement::switch_User(Command &line) {
+    //登录的时候,不仅要查找是否注册过,
+    //还要在登录栈中查找是否已经登录过?
+    //似乎可以重复登录同一账户?
     string ID = line.next_token();
     vector<int> ans;
     id_to_pos.find_node(ID, ans);
     if (ans.empty()) {
         throw Exception("Invalid\n");
-    }//重复注册,失败
+    }//没注册过,失败
 
     int cur_priority = get_current_Priority();
     User temp;
@@ -71,7 +85,6 @@ void AccountManagement::switch_User(Command &line) {
         LogInAccount tp;
         tp.user = temp;
 
-        tp.selected_book_id = 1;//要修改
         login_stack.push_back(tp);
         return;
     }
@@ -168,6 +181,7 @@ void AccountManagement::change_password(Command &line) {
 }
 
 int AccountManagement::get_current_Priority() const {
+    if (login_stack.empty()) return 0;
     return login_stack.back().user.get_priority();
 }
 
