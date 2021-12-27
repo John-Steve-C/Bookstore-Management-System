@@ -11,7 +11,7 @@
 int main() {
     int line = 0;
 
-//    freopen("test.in","r",stdin); freopen("ans.txt","w",stdout);
+    freopen("test.in","r",stdin); freopen("ans.txt","w",stdout);
 
     string command_input;
     AccountManagement accounts;
@@ -20,6 +20,7 @@ int main() {
 
     while (getline(cin, command_input)) {
         line++;
+//        cout << line << endl;
         try {
             Command cmd(command_input);
 //            cmd.count();
@@ -41,6 +42,9 @@ int main() {
                 Command temp_cmd(cmd);
                 if (temp_cmd.next_token() == "finance") {
                     //说明是日志
+                    //权限判断()
+                    if (accounts.get_current_Priority() < 7)
+                        throw Exception("Invalid\n");
                     string limit = temp_cmd.next_token();
                     if (limit.empty()) logs.ShowFinance();
                     else logs.ShowFinance(stoi(limit));

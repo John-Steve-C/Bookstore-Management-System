@@ -8,13 +8,14 @@ LogManagement::LogManagement() {
 void LogManagement::ShowFinance(int limit) {
     //进入前应当进行权限判断
     //time = 0
+
+
     if (limit == 0) {
         printf("\n");
         return;
     }
 
     log_data.get_info(num, 1);
-
     //超限,失败
     if (limit > num) {
         throw Exception("Invalid\n");
