@@ -11,7 +11,7 @@
 int main() {
     int line = 0;
 
-    freopen("test.in","r",stdin); freopen("ans.txt","w",stdout);
+//    freopen("test.in","r",stdin); freopen("ans.txt","w",stdout);
 
     string command_input;
     AccountManagement accounts;
