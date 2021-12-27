@@ -68,6 +68,12 @@ int main() {
 //            cout << line << ' ' << s.what();
             cout << s.what();
         }
+        catch (std::invalid_argument& e) {//stod和stoi的异常
+            cout << "Invalid\n";
+        }
+        catch (std::out_of_range& e) {
+            cout << "Invalid\n";
+        }
     }
 
     return 0;

@@ -166,15 +166,14 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
     id_to_pos.find_node(to_string(_id), ans);
     Book new_book;
     book_data.read(new_book, ans[0]);
+    string s,ns,os;
+    set<string> tong;
+
 
     while (!temp_command.empty()) {
         if (temp_command[1] == 'n') {
             if (_name.empty()) {
                 _name = temp_command.substr(7, temp_command.length() - 8);
-                //更新数据
-                name_to_pos.delete_node(UllNode(new_book.book_name.value, ans[0]));
-                name_to_pos.add_node(UllNode(_name, ans[0]));
-                strcpy(new_book.book_name.value, _name.c_str());
             } else { //重复指定参数
                 throw Exception("Invalid\n");
             }
@@ -182,21 +181,19 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
 
         if (temp_command[1] == 'k') {
             //更改分隔符
-            string s = temp_command.substr(10, temp_command.length() - 11);
+            s = temp_command.substr(10, temp_command.length() - 11);
             Command new_key(s, '|'), old_key(new_book.keyword.value, '|');
             //old是旧的keyword
-            string ns = new_key.next_token(), os = old_key.next_token();
-            //先判断是否冲突，再删除旧的对应关系?
-            //直接全部暴力删除
-            while (!os.empty()) {
-                keyword_to_pos.delete_node(UllNode(os, ans[0]));
-                os = old_key.next_token();
-            }
+            ns = new_key.next_token(), os = old_key.next_token();
+
             while (!ns.empty()) {
-                keyword_to_pos.add_node(UllNode(ns, ans[0]));
+                //判断ns中的关键词是否重复,重复则不合法
+                if (tong.find(ns) != tong.end()) {
+                    throw Exception("Invalid\n");
+                }
+                tong.insert(ns);
                 ns = new_key.next_token();
             }
-            strcpy(new_book.keyword.value, s.c_str());
         }
         if (temp_command[1] == 'I') {
             if (_isbn.empty()) {
@@ -211,10 +208,6 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
                 if (!tp_ans.empty()) {
                     throw Exception("Invalid\n");
                 }
-
-                isbn_to_pos.delete_node(UllNode(new_book.isbn.value, ans[0]));
-                isbn_to_pos.add_node(UllNode(_isbn, ans[0]));
-                strcpy(new_book.isbn.value, _isbn.c_str());
             } else {
                 throw Exception("Invalid\n");
             }
@@ -222,9 +215,6 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
         if (temp_command[1] == 'a') {
             if (_author.empty()) {
                 _author = temp_command.substr(9, temp_command.length() - 10);
-                author_to_pos.delete_node(UllNode(new_book.author.value, ans[0]));
-                author_to_pos.add_node(UllNode(_author, ans[0]));
-                strcpy(new_book.author.value, _author.c_str());
             } else {
                 throw Exception("Invalid\n");
             }
@@ -233,12 +223,46 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
             if (_price.empty()) {
                 _price = temp_command.substr(7, temp_command.length() - 7);
                 //没有映射关系,不用修改
-                new_book.price = stod(_price);
             } else {
                 throw Exception("Invalid\n");
             }
         }
         temp_command = line.next_token();
+    }
+
+    //合法，则更新数据
+    if (!_name.empty()) {
+        name_to_pos.delete_node(UllNode(new_book.book_name.value, ans[0]));
+        name_to_pos.add_node(UllNode(_name, ans[0]));
+        strcpy(new_book.book_name.value, _name.c_str());
+    }
+    if (!_author.empty()) {
+        author_to_pos.delete_node(UllNode(new_book.author.value, ans[0]));
+        author_to_pos.add_node(UllNode(_author, ans[0]));
+        strcpy(new_book.author.value, _author.c_str());
+    }
+    if (!_isbn.empty()) {
+        isbn_to_pos.delete_node(UllNode(new_book.isbn.value, ans[0]));
+        isbn_to_pos.add_node(UllNode(_isbn, ans[0]));
+        strcpy(new_book.isbn.value, _isbn.c_str());
+    }
+    if (!_price.empty()) {
+        new_book.price = stod(_price);
+    }
+
+    if (!tong.empty()) {
+        Command new_key(s, '|'), old_key(new_book.keyword.value, '|');
+        ns = new_key.next_token(), os = old_key.next_token();
+        //暴力删除,之后重新插入
+        while (!os.empty()) {
+            keyword_to_pos.delete_node(UllNode(os, ans[0]));
+            os = old_key.next_token();
+        }
+        while (!ns.empty()) {
+            keyword_to_pos.add_node(UllNode(ns, ans[0]));
+            ns = new_key.next_token();
+        }
+        strcpy(new_book.keyword.value, s.c_str());
     }
 
     book_data.update(new_book, ans[0]);
@@ -281,10 +305,7 @@ void BookManagement::Buy(Command &line, AccountManagement &accounts, LogManageme
     string _isbn = line.next_token();
     string s = line.next_token();
     int _quantity = 0;
-    for (int i = 0; i < s.length(); ++i) {
-        _quantity = _quantity * 10 + s[i] - '0';
-    }
-    //也可以写_quantity = stoi(s);
+    _quantity = stoi(s);
 
     vector<int> ans;
     isbn_to_pos.find_node(_isbn, ans);
