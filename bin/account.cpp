@@ -68,6 +68,12 @@ void AccountManagement::switch_User(Command &line) {
     //登录的时候,不仅要查找是否注册过,
     //还要在登录栈中查找是否已经登录过?
     //似乎可以重复登录同一账户?
+
+    //判断有无多余的参数
+    if (line.cnt < 2 || line.cnt > 3) {
+        throw Exception("Invalid\n");
+    }
+
     string ID = line.next_token();
     vector<int> ans;
     id_to_pos.find_node(ID, ans);
@@ -103,8 +109,8 @@ void AccountManagement::switch_User(Command &line) {
     }
 }
 
-void AccountManagement::LogOut() {
-    if (login_stack.empty()) {
+void AccountManagement::LogOut(Command &line) {
+    if (line.cnt != 1 || login_stack.empty()) {
         throw Exception("Invalid\n");
     }    //没有登录账户,异常
 
@@ -115,6 +121,11 @@ void AccountManagement::register_User(Command &line) {
     string _ID = line.next_token();
     string _password = line.next_token();
     string _name = line.next_token();
+
+    //不能缺省参数
+    if (line.cnt != 4) {
+        throw Exception("Invalid\n");
+    }
 
     vector<int> ans;
     id_to_pos.find_node(_ID, ans);
@@ -134,7 +145,11 @@ void AccountManagement::add_User(Command &line, LogManagement &logs) {
     string _priority = line.next_token();
     string _name = line.next_token();
 
-    if (get_current_Priority() < _priority[0] - '0' ||
+    if (line.cnt != 5) {
+        throw Exception("Invalid\n");
+    }
+
+    if (get_current_Priority() <= _priority[0] - '0' ||
         get_current_Priority() < 3) {//权限不足,失败
         throw Exception("Invalid\n");
     }
@@ -154,6 +169,14 @@ void AccountManagement::change_password(Command &line) {
     string ID = line.next_token();
     string old_password = line.next_token();
     string new_password = line.next_token();
+
+    if (line.cnt < 3 || line.cnt > 4) {
+        throw Exception("Invalid\n");
+    }
+
+    if (get_current_Priority() < 1) {
+        throw Exception("Invalid\n");
+    }
 
     vector<int> ans;
     id_to_pos.find_node(ID, ans);
@@ -186,6 +209,10 @@ int AccountManagement::get_current_Priority() const {
 }
 
 void AccountManagement::remove_User(Command &line, LogManagement &logs) {
+    if (line.cnt != 2) {
+        throw Exception("Invalid\n");
+    }
+
     if (get_current_Priority() < 7) {
         //权限不足
         throw Exception("Invalid\n");

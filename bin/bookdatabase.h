@@ -8,6 +8,8 @@
 #include <set>
 #include <unordered_map>
 #include <vector>
+#include <iomanip>
+#include <queue>
 
 #include "command.h"
 #include "account.h"
@@ -63,6 +65,7 @@ struct Keyword {
     bool operator==(const Keyword &rhs) const;
 
     bool operator<(const Keyword &rhs) const;
+
 };
 
 class Book {
@@ -92,6 +95,14 @@ public:
     Book(int id, const std::string &isbn); // 将除 ISBN 以外的部分全部为空字符串或 0
 
     friend std::ostream &operator<<(std::ostream &output, const Book &book); // 用于输出
+
+    bool operator<(const Book &rhs) const;
+
+    bool operator>(const Book &rhs) const;
+
+    bool operator<=(const Book &rhs) const;
+
+    bool operator>=(const Book &rhs) const;
 };
 
 class BookManagement {

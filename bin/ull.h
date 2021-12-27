@@ -194,6 +194,7 @@ public:
 
     void add_node(const UllNode &node) {
         UllBlock new_block;
+        block_list.get_info(num, 1);
         if (!num) {//第一次
             new_block.siz = 1;
             new_block.array[0] = node;
@@ -287,6 +288,17 @@ public:
 
         if (pre_block.siz >= BLOCK_MERGE_THRESHOLD)
             split_block(pre_block.pos);
+    }
+
+    //返回所有UllNode的val(实际上就是pos)
+    void find_all(vector<int> &ans){
+        UllBlock tp_block;
+        for (int i = fpos; i ; i = tp_block.nxt) {
+            block_list.read(tp_block, i);
+            for (int j = 0; j < tp_block.siz; ++j) {
+                ans.push_back(tp_block.array[j].val);
+            }
+        }
     }
 
 };

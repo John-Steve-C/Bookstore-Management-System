@@ -20,6 +20,7 @@ private:
     char delimiter = ' ';//分隔符
 
 public:
+    int cnt = 0;
     Command() = default;
 
     Command(const Command &rhs);
@@ -29,6 +30,8 @@ public:
     Command(const std::string &in, char _delimiter = ' ');
 
     ~Command() = default;
+
+    void count(); //统计参数个数
 
     string next_token();//取出下一个Token,更新cur
 

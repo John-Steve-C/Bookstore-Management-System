@@ -13,7 +13,6 @@ void LogManagement::ShowFinance(int limit) {
         return;
     }
 
-    int num;
     log_data.get_info(num, 1);
 
     //超限,失败
@@ -26,17 +25,20 @@ void LogManagement::ShowFinance(int limit) {
     double inc = 0, dec = 0;
     for (int i = num - limit + 1; i <= num; ++i){
         class Log temp;
-        log_data.read(temp, 4 + i * sizeof(Log));
+        log_data.read(temp, 8 + (i - 1) * sizeof(Log));
 
         if (temp.if_earn) inc += temp.Amount;
         else dec += temp.Amount;
     }
 
-    cout << "+ " << inc << " - " << dec << "\n";
+    cout << "+ " << fixed << setprecision(2) << inc
+         << " - " << fixed << setprecision(2) << dec << "\n";
 }
 
 void LogManagement::Report(Command &line, AccountManagement &accounts) {}
 
 void LogManagement::Log_ch(Command &line) {}
 
-void LogManagement::AddLog(Log &log) {}
+void LogManagement::AddLog(Log &log) {
+    log_data.write(log);
+}

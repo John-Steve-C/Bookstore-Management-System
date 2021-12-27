@@ -74,13 +74,36 @@ Book::Book(int _id, const std::string &_isbn, const std::string &_bookName, cons
 Book::Book(int _id, const std::string &_isbn) {
     book_ID = _id;
     isbn = _isbn;
+    book_name = BookName();
+    author = Author();
+    keyword = Keyword();
+    quantity = 0;
+    price = 0;
+    total_cost = 0;
 }
 
 ostream &operator<<(ostream &output, const Book &obj) {
     output << obj.isbn.value << '\t' << obj.book_name.value << '\t'
            << obj.author.value << '\t' << obj.keyword.value << '\t'
-           << obj.price << '\t' << obj.quantity << '\n';
+           << fixed << setprecision(2) << obj.price << '\t' << obj.quantity << '\n';
+    //注意输出保留2位小数
     return output;
+}
+
+bool Book::operator<(const Book &rhs) const {
+    return isbn < rhs.isbn;
+}
+
+bool Book::operator>(const Book &rhs) const {
+    return rhs < *this;
+}
+
+bool Book::operator<=(const Book &rhs) const {
+    return !(rhs < *this);
+}
+
+bool Book::operator>=(const Book &rhs) const {
+    return !(*this < rhs);
 }
 
 //class BookManagement
@@ -95,7 +118,7 @@ BookManagement::BookManagement() {
 }
 
 void BookManagement::Select(Command &line, AccountManagement &accounts, LogManagement &logs) {
-    if (accounts.get_current_Priority() < 3) {
+    if (accounts.get_current_Priority() < 3 || line.cnt != 2) {
         throw Exception("Invalid\n");
     }
 
@@ -113,6 +136,7 @@ void BookManagement::Select(Command &line, AccountManagement &accounts, LogManag
         int pos = book_data.write(temp);
         id_to_pos.add_node(UllNode(to_string(num), pos));
         isbn_to_pos.add_node(UllNode(_isbn, pos));
+        accounts.User_select(temp.book_ID);
         return;
     }
 
@@ -124,7 +148,7 @@ void BookManagement::Select(Command &line, AccountManagement &accounts, LogManag
 //book_data和..._to_pos都要修改,但是id_to_pos不变
 //注意特判，如果修改的ISBN与原来相同,那么就不对
 void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManagement &logs) {
-    if (accounts.get_current_Priority() < 3) {
+    if (accounts.get_current_Priority() < 3 || line.cnt <= 1) {
         throw Exception("Invalid\n");
     }
 
@@ -146,8 +170,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
     while (!temp_command.empty()) {
         if (temp_command[1] == 'n') {
             if (_name.empty()) {
-                for (int i = 7; i < temp_command.length() - 1; ++i)
-                    _name += temp_command[i];
+                _name = temp_command.substr(7, temp_command.length() - 8);
                 //更新数据
                 name_to_pos.delete_node(UllNode(new_book.book_name.value, ans[0]));
                 name_to_pos.add_node(UllNode(_name, ans[0]));
@@ -170,19 +193,25 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
                 os = old_key.next_token();
             }
             while (!ns.empty()) {
-                keyword_to_pos.add_node(UllNode(s, ans[0]));
+                keyword_to_pos.add_node(UllNode(ns, ans[0]));
                 ns = new_key.next_token();
             }
             strcpy(new_book.keyword.value, s.c_str());
         }
         if (temp_command[1] == 'I') {
             if (_isbn.empty()) {
-                for (int i = 7; i < temp_command.length() - 1; ++i)
-                    _isbn += temp_command[i];
+                _isbn = temp_command.substr(6, temp_command.length() - 6);
                 //不能修改相同的isbn
                 if (strcmp(new_book.isbn.value, _isbn.c_str()) == 0) {
                     throw Exception("Invalid\n");
                 }
+                //不能有两本ISBN相同的书
+                vector<int> tp_ans;
+                isbn_to_pos.find_node(_isbn, tp_ans);
+                if (!tp_ans.empty()) {
+                    throw Exception("Invalid\n");
+                }
+
                 isbn_to_pos.delete_node(UllNode(new_book.isbn.value, ans[0]));
                 isbn_to_pos.add_node(UllNode(_isbn, ans[0]));
                 strcpy(new_book.isbn.value, _isbn.c_str());
@@ -192,8 +221,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
         }
         if (temp_command[1] == 'a') {
             if (_author.empty()) {
-                for (int i = 9; i < temp_command.length() - 1; ++i)
-                    _author += temp_command[i];
+                _author = temp_command.substr(9, temp_command.length() - 10);
                 author_to_pos.delete_node(UllNode(new_book.author.value, ans[0]));
                 author_to_pos.add_node(UllNode(_author, ans[0]));
                 strcpy(new_book.author.value, _author.c_str());
@@ -203,8 +231,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
         }
         if (temp_command[1] == 'p') {
             if (_price.empty()) {
-                for (int i = 8; i < temp_command.length() - 1; ++i)
-                    _price += temp_command[i];
+                _price = temp_command.substr(7, temp_command.length() - 7);
                 //没有映射关系,不用修改
                 new_book.price = stod(_price);
             } else {
@@ -218,7 +245,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
 }
 
 void BookManagement::ImportBook(Command &line, AccountManagement &accounts, LogManagement &logs) {
-    if (accounts.get_current_Priority() < 3) {
+    if (accounts.get_current_Priority() < 3 || line.cnt != 3) {
         throw Exception("Invalid\n");
     }
 
@@ -238,11 +265,16 @@ void BookManagement::ImportBook(Command &line, AccountManagement &accounts, LogM
     temp.quantity += stoi(_quantity);
     temp.total_cost += stod(s);
 
+    Log tp_log;
+    tp_log.if_earn = false;
+    tp_log.Amount = stod(s);
+    logs.AddLog(tp_log);
+
     book_data.update(temp, ans[0]);
 }
 
 void BookManagement::Buy(Command &line, AccountManagement &accounts, LogManagement &logs) {
-    if (accounts.get_current_Priority() < 1) {
+    if (accounts.get_current_Priority() < 1 || line.cnt != 3) {
         throw Exception("Invalid\n");
     }
 
@@ -267,7 +299,12 @@ void BookManagement::Buy(Command &line, AccountManagement &accounts, LogManageme
 
     temp.quantity -= _quantity;
     book_data.update(temp, ans[0]);
-    cout << (double) temp.price * _quantity << endl;
+    cout << fixed << setprecision(2) << (double) temp.price * _quantity << endl;
+
+    Log tp_log;
+    tp_log.if_earn = true;
+    tp_log.Amount = (double) temp.price * _quantity;
+    logs.AddLog(tp_log);
 }
 
 void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagement &logs) {
@@ -281,20 +318,38 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
     vector<int> ans;
 
     //没有参数,说明全部都要输出
-    if (temp.empty()) {}
+    if (temp.empty()) {
+        isbn_to_pos.find_all(ans);
+        //按照ISBN升序输出
+        if (!ans.empty()) {
+            for (int i = 0; i < ans.size(); ++i) {
+                Book temp;
+                book_data.read(temp, ans[i]);
+                cout << temp;
+            }
+        } else {
+            cout << '\n';
+        }
+        return;
+    }
 
+    //否则开始匹配
     if (temp[1] == 'n') {
-        for (int i = 7; i < temp.length() - 1; ++i)
-            _name += temp[i];
+        _name = temp.substr(7, temp.length() - 8);
         if (_name.empty()) {
             throw Exception("Invalid\n");
         } else {
             name_to_pos.find_node(_name, ans);
             if (!ans.empty()) {
+                priority_queue<Book,vector<Book>,greater<Book> > output;
                 for (int i = 0; i < ans.size(); ++i) {
                     Book temp;
                     book_data.read(temp, ans[i]);
-                    cout << temp;
+                    output.push(temp);
+                }
+                while (!output.empty()) {
+                    cout << output.top();
+                    output.pop();
                 }
             } else {
                 cout << '\n';
@@ -302,7 +357,7 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
             return;
         }
     }
-    if (temp[1] == 'K') {
+    if (temp[1] == 'k') {
         for (int i = 10; i < temp.length() - 1; ++i) {
             if (temp[i] == '|') {
                 throw Exception("Invalid\n");
@@ -314,10 +369,15 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
         } else {
             keyword_to_pos.find_node(_keyword, ans);
             if (!ans.empty()) {
+                priority_queue<Book,vector<Book>,greater<Book> > output;
                 for (int i = 0; i < ans.size(); ++i) {
                     Book temp;
                     book_data.read(temp, ans[i]);
-                    cout << temp;
+                    output.push(temp);
+                }
+                while (!output.empty()) {
+                    cout << output.top();
+                    output.pop();
                 }
             } else {
                 cout << '\n';
@@ -326,8 +386,7 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
         }
     }
     if (temp[1] == 'I') {
-        for (int i = 7; i < temp.length() - 1; ++i)
-            _isbn += temp[i];
+        _isbn = temp.substr(6, temp.length() - 6);
         if (_isbn.empty()) {
             throw Exception("Invalid\n");
         } else {
@@ -345,17 +404,21 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
         }
     }
     if (temp[1] == 'a') {
-        for (int i = 9; i < temp.length() - 1; ++i)
-            _author += temp[i];
+        _author = temp.substr(9, temp.length() - 10);
         if (_author.empty()) {
             throw Exception("Invalid\n");
         } else {
             author_to_pos.find_node(_author, ans);
-            if (ans.empty()) {
+            if (!ans.empty()) {
+                priority_queue<Book,vector<Book>,greater<Book> > output;
                 for (int i = 0; i < ans.size(); ++i) {
                     Book temp;
                     book_data.read(temp, ans[i]);
-                    cout << temp;
+                    output.push(temp);
+                }
+                while (!output.empty()) {
+                    cout << output.top();
+                    output.pop();
                 }
             } else {
                 cout << '\n';

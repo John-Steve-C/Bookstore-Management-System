@@ -77,7 +77,7 @@ public:
 
     void switch_User(Command &line); // su command
 
-    void LogOut(); // logout command
+    void LogOut(Command &line); // logout command
 
     void register_User(Command &line); // register command
     //权限为0,只能加顾客

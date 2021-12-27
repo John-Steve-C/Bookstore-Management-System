@@ -10,6 +10,7 @@ Command::Command(const Command &rhs) {
     buffer = rhs.buffer;
     cur = rhs.cur;
     delimiter = rhs.delimiter;
+    cnt = rhs.cnt;
 }
 
 Command::Command(const std::string &in, char _delimiter) {
@@ -17,6 +18,7 @@ Command::Command(const std::string &in, char _delimiter) {
     buffer = in;
     cur = 0;//过滤行首的分隔符
     while (buffer[cur] == delimiter) cur++;
+    count();
 }
 
 string Command::next_token() {
@@ -34,9 +36,25 @@ string Command::next_token() {
     return temp;
 }
 
+void Command::count() {
+    int len = buffer.length(),i = 0,j;
+    //注意,buffer中有末尾的/r
+    while (buffer[i] == delimiter) i++;
+    while (i < len) {
+        j = i;
+        while (buffer[j] != delimiter && j < len){
+            j++;
+        }
+        if (i != j) cnt++;
+        while (buffer[j] == delimiter && j < len) j++;
+        i = j;
+    }
+}
+
 void Command::clear() {
     buffer = "";
     cur = 0;
+    cnt = 0;
     delimiter = ' ';
     return;
 }

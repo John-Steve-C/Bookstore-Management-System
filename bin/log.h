@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <iomanip>
 
 #include "ull.h"
 #include "file_io.h"
@@ -32,8 +33,8 @@ public:
 
 class LogManagement {
 private:
-    MemoryRiver<Log, 1> log_data;
-    int count_ = 0; // 交易笔数
+    MemoryRiver<Log> log_data;
+    int num = 0; // 交易笔数
 
 public:
     LogManagement();
