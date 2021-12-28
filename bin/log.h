@@ -24,11 +24,11 @@ enum Behavior {AddUser, Delete, Show, Buy, Select, Modify, Import};
 class Log {
 public:
     User *user;
-    //不用指针会报错
+    //不用指针会报错?
     Behavior behavoir;
     char description[150];
     bool if_earn = false; // 表示是否是收入
-    double Amount;
+    double Amount = 0;
 };
 
 class LogManagement {

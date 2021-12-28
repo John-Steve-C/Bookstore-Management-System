@@ -9,7 +9,6 @@ void LogManagement::ShowFinance(int limit) {
     //进入前应当进行权限判断
     //time = 0
 
-
     if (limit == 0) {
         printf("\n");
         return;

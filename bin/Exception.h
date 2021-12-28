@@ -6,6 +6,7 @@
 #define BOOKSTORE_EXCEPTION_H
 
 #include <string>
+#include <exception>
 
 class Exception : public exception{
 private:

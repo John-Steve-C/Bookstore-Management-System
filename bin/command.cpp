@@ -40,9 +40,9 @@ void Command::count() {
     int len = buffer.length(),i = 0,j;
     //注意,buffer中有末尾的/r
     while (buffer[i] == delimiter) i++;
-    while (i < len) {
+    while (i < len && buffer[i] != '\r') {
         j = i;
-        while (buffer[j] != delimiter && j < len){
+        while (buffer[j] != delimiter && j < len && buffer[j] != '\r'){
             j++;
         }
         if (i != j) cnt++;

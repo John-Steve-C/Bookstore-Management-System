@@ -9,6 +9,10 @@
 #include <ostream>
 #include <istream>
 
+//#include "Exception.h"
+//同样要前置声明?
+//class Exception;
+
 using std::string;
 using std::istream;
 using std::ostream;
