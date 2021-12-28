@@ -31,8 +31,10 @@ int main() {
                     throw Exception("Invalid\n");
                 }
             }
-            string order = cmd.next_token();
+            //todo:判断空行！
+            if (cmd.cnt == 0) { continue; }
 
+            string order = cmd.next_token();
             if (order == "exit" || order == "quit") {
                 return 0;
             }
@@ -68,7 +70,9 @@ int main() {
             else if (order == "report") {
                 order = cmd.next_token();
                 if (order == "myself") {}
-                else if (order == "finance") {}
+                else if (order == "finance") {
+                    logs.ShowFinance();
+                }
                 else if (order == "employee") {}
             }
             else if (order == "log") {}
