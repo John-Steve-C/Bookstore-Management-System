@@ -11,7 +11,7 @@
 int main() {
     int line = 0;
 
-//    freopen("test.in","r",stdin); freopen("ans.txt","w",stdout);
+    freopen("1.in","r",stdin); freopen("ans.txt","w",stdout);
 
     string command_input;
     AccountManagement accounts;
@@ -23,7 +23,14 @@ int main() {
 //        cout << line << endl;
         try {
             Command cmd(command_input);
-//            cmd.count();
+            if (command_input.length() > 1024) {
+                throw Exception("Invalid\n");
+            }
+            for (int i = 0;i < command_input.length(); ++i) {
+                if (command_input[i] < 0 || command_input[i] > 127) {
+                    throw Exception("Invalid\n");
+                }
+            }
             string order = cmd.next_token();
 
             if (order == "exit" || order == "quit") {
@@ -58,7 +65,12 @@ int main() {
             else if (order == "import") books.ImportBook(cmd, accounts, logs);
 
             //todo:log_system
-            else if (order == "report") {}
+            else if (order == "report") {
+                order = cmd.next_token();
+                if (order == "myself") {}
+                else if (order == "finance") {}
+                else if (order == "employee") {}
+            }
             else if (order == "log") {}
 
             //todo:错误的情况
