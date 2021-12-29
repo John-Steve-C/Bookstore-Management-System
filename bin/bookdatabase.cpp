@@ -10,6 +10,17 @@ bool BookManagement::is_visible(const string &x) {
     return true;
 }
 
+//没有不可见字符和引号
+bool is_vis_quote(const string &x) {
+    if (x.empty()) return true; //不对空串做判断
+    for (int i = 0;i < x.length(); ++i) {
+        if (x[i] < 32 || x[i] > 126 || x[i] == '\"') {
+            return false;
+        }
+    }
+    return true;
+}
+
 //相当于is_digit
 bool is_num(const string &x) {
     if (x.empty()) return true;
@@ -261,9 +272,9 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
 
     //判断本身是否合法
     if (!is_visible(_isbn) || _isbn.length() > 20 ||
-        !is_visible(_name) || _name.length() > 60 ||
-        !is_visible(_author) || _author.length() > 60 ||
-        !is_visible(_keyword) || _keyword.length() > 60 ||
+        !is_vis_quote(_name) || _name.length() > 60 ||
+        !is_vis_quote(_author) || _author.length() > 60 ||
+        !is_vis_quote(_keyword) || _keyword.length() > 60 ||
         _price.length() > 13) {
         throw Exception("Invalid\n");
     }
@@ -402,7 +413,7 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
     //否则开始匹配
     if (temp[1] == 'n') {
         _name = temp.substr(7, temp.length() - 8);
-        if (_name.empty() || !is_visible(_name) || _name.length() > 60) {
+        if (_name.empty() || !is_vis_quote(_name) || _name.length() > 60) {
             throw Exception("Invalid\n");
         } else {
             name_to_pos.find_node(_name, ans);
@@ -430,7 +441,7 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
             }//判断 | ,此处只会有一个关键词
             _keyword += temp[i];
         }
-        if (_keyword.empty() || !is_visible(_keyword) || _keyword.length() > 60) {
+        if (_keyword.empty() || !is_vis_quote(_keyword) || _keyword.length() > 60) {
             throw Exception("Invalid\n");
         } else {
             keyword_to_pos.find_node(_keyword, ans);
@@ -471,7 +482,7 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
     }
     if (temp[1] == 'a') {
         _author = temp.substr(9, temp.length() - 10);
-        if (_author.empty() || !is_visible(_author) || _author.length() > 60) {
+        if (_author.empty() || !is_vis_quote(_author) || _author.length() > 60) {
             throw Exception("Invalid\n");
         } else {
             author_to_pos.find_node(_author, ans);
