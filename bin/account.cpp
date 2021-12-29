@@ -1,5 +1,29 @@
 #include "account.h"
 
+//判断是否是下划线,数字,字母
+bool is_valid(const string &x) {
+    if (x.empty()) return true; //不对空串做判断
+    for (int i = 0;i < x.length(); ++i) {
+        //不是可见字符
+        if (x[i] != '_' && !(x[i] >= '0' && x[i] <= '9') &&
+            !(x[i] >= 'a' && x[i] <= 'z') && !(x[i] >= 'A' && x[i] <= 'Z') ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+//是否是可见字符
+bool is_visible(const string &x) {
+    if (x.empty()) return true; //不对空串做判断
+    for (int i = 0;i < x.length(); ++i) {
+        if (x[i] < 32 || x[i] > 126) {
+            return false;
+        }
+    }
+    return true;
+}
+
 //class UserID
 
 UserID::UserID(std::string userID) {
@@ -75,6 +99,9 @@ void AccountManagement::switch_User(Command &line) {
     }
 
     string ID = line.next_token();
+    if (!is_valid(ID) || ID.length() > 30) {
+        throw Exception("Invalid\n");
+    }
     vector<int> ans;
     id_to_pos.find_node(ID, ans);
     if (ans.empty()) {
@@ -86,26 +113,30 @@ void AccountManagement::switch_User(Command &line) {
     user_data.read(temp, ans[0]);
 
     string s = line.next_token();
-    //权限足够
-    if (cur_priority >= temp.get_priority()) {
-        LogInAccount tp;
-        tp.user = temp;
-
-        login_stack.push_back(tp);
-        return;
-    }
-
-    //权限不够
-    // 没输入密码,或者密码错误
-    if (s.empty() || strcmp(s.c_str(), temp.password) != 0) {
-        //异常判断:密码错误
+    if (!s.empty() && (!is_valid(s) || s.length() > 30) ) {
         throw Exception("Invalid\n");
+    }
+    //todo:判断顺序要调整，先看密码的正确性
+    if (!s.empty()) {
+        if (strcmp(s.c_str(), temp.password) != 0) {
+            //异常判断:密码错误
+            throw Exception("Invalid\n");
+        } else {//正确,登录成功
+            LogInAccount tp;
+            tp.user = temp;
+            login_stack.push_back(tp);
+            return;
+        }
     } else {
-        LogInAccount tp;
-        tp.user = temp;
-
-        login_stack.push_back(tp);
-        return;
+        //todo:密码为空，判断权限
+        if (cur_priority >= temp.get_priority()) {
+            LogInAccount tp;
+            tp.user = temp;
+            login_stack.push_back(tp);
+            return;
+        } else {
+            throw Exception("Invalid\n");
+        }
     }
 }
 
@@ -121,6 +152,12 @@ void AccountManagement::register_User(Command &line) {
     string _ID = line.next_token();
     string _password = line.next_token();
     string _name = line.next_token();
+
+    //提前判断合法性
+    if (!is_valid(_ID) || !is_valid(_password) || !is_visible(_name) ||
+        _ID.length() > 30 || _password.length() > 30 || _name.length() > 30) {
+        throw Exception("Invalid\n");
+    }
 
     //不能缺省参数
     if (line.cnt != 4) {
@@ -144,6 +181,13 @@ void AccountManagement::add_User(Command &line, LogManagement &logs) {
     string _password = line.next_token();
     string _priority = line.next_token();
     string _name = line.next_token();
+
+    //提前判断合法性
+    if (!is_valid(_ID) || !is_valid(_password) || !is_visible(_name) ||
+        _priority[0] < '0' || _priority[0] > '7' || _priority.length() != 1 ||
+        _ID.length() > 30 || _password.length() > 30 || _name.length() > 30) {
+        throw Exception("Invalid\n");
+    }
 
     if (line.cnt != 5) {
         throw Exception("Invalid\n");
@@ -170,6 +214,12 @@ void AccountManagement::change_password(Command &line) {
     string old_password = line.next_token();
     string new_password = line.next_token();
 
+    //提前判断合法性
+    if (!is_valid(ID) || !is_valid(old_password) || !is_valid(new_password) ||
+        ID.length() > 30 || old_password.length() > 30 || new_password.length() > 30) {
+        throw Exception("Invalid\n");
+    }
+
     if (line.cnt < 3 || line.cnt > 4) {
         throw Exception("Invalid\n");
     }
@@ -186,20 +236,23 @@ void AccountManagement::change_password(Command &line) {
 
     User temp;
     user_data.read(temp, ans[0]);
-
-    if (get_current_Priority() == 7) {
-        //权限为7,上方的old读到的就是new
-        temp.change_password(old_password);
-        user_data.update(temp, ans[0]);
-        return;
-    }
-
-    if (strcmp(temp.password, old_password.c_str() ) != 0) {
-        //密码错误
-        throw Exception("Invalid\n");
+    //有密码,那么就判断正误
+    if (!new_password.empty()) {
+        if (strcmp(temp.password, old_password.c_str() ) != 0) {
+            //密码错误
+            throw Exception("Invalid\n");
+        } else {
+            temp.change_password(new_password);
+            user_data.update(temp, ans[0]);
+        }
     } else {
-        temp.change_password(new_password);
-        user_data.update(temp, ans[0]);
+        if (get_current_Priority() == 7) {
+            //权限为7,上方的old读到的就是new
+            temp.change_password(old_password);
+            user_data.update(temp, ans[0]);
+        } else {
+            throw Exception("Invalid\n");
+        }
     }
 }
 
@@ -209,16 +262,16 @@ int AccountManagement::get_current_Priority() const {
 }
 
 void AccountManagement::remove_User(Command &line, LogManagement &logs) {
-    if (line.cnt != 2) {
-        throw Exception("Invalid\n");
-    }
-
-    if (get_current_Priority() < 7) {
+    if (line.cnt != 2 || get_current_Priority() < 7) {
         //权限不足
         throw Exception("Invalid\n");
     }
 
     string ID = line.next_token();
+    if (!is_valid(ID) || ID.length() > 30) {
+        throw Exception("Invalid\n");
+    }
+
     vector<int> ans;
     id_to_pos.find_node(ID, ans);
     if (ans.empty()) {
@@ -232,7 +285,6 @@ void AccountManagement::remove_User(Command &line, LogManagement &logs) {
         }
     }
 
-    User temp;
     user_data.Delete(ans[0]);
     id_to_pos.delete_node(UllNode(ID, ans[0]));
 }

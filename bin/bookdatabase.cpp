@@ -1,5 +1,25 @@
 #include "bookdatabase.h"
 
+bool BookManagement::is_visible(const string &x) {
+    if (x.empty()) return true; //不对空串做判断
+    for (int i = 0;i < x.length(); ++i) {
+        if (x[i] < 32 || x[i] > 126) {
+            return false;
+        }
+    }
+    return true;
+}
+
+//相当于is_digit
+bool is_num(const string &x) {
+    if (x.empty()) return true;
+    for (int i = 0;i < x.length(); ++i) {
+        if (x[i] < '0' || x[i] > '9')
+            return false;
+    }
+    return true;
+}
+
 //class ISBN
 
 ISBN::ISBN(const std::string &s) {
@@ -123,6 +143,9 @@ void BookManagement::Select(Command &line, AccountManagement &accounts, LogManag
     }
 
     string _isbn = line.next_token();
+    if (!is_visible(_isbn) || _isbn.length() > 20) {
+        throw Exception("Invalid\n");
+    }
     vector<int> ans;
     isbn_to_pos.find_node(_isbn, ans);
     //不存在,创建新书
@@ -155,7 +178,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
     string temp_command = line.next_token();
     string _name, _isbn, _author, _keyword, _price;
 
-    //没有参数,说明全部都要输出 或者 没有选中书
+    //没有参数,说明没有选中书
     if (temp_command.empty() ||
         !accounts.login_stack.back().selected_book_id) {
         throw Exception("Invalid\n");
@@ -182,6 +205,12 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
         if (temp_command[1] == 'k') {
             //更改分隔符
             s = temp_command.substr(10, temp_command.length() - 11);
+            //判断是否有连续多个|出现
+            for (int i = 1;i < s.length(); ++i) {
+                if (s[i] == '|' && s[i - 1] == '|')
+                    throw Exception("Invalid\n");
+            }
+
             Command new_key(s, '|'), old_key(new_book.keyword.value, '|');
             //old是旧的keyword
             ns = new_key.next_token(), os = old_key.next_token();
@@ -230,6 +259,14 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
         temp_command = line.next_token();
     }
 
+    //判断本身是否合法
+    if (!is_visible(_isbn) || _isbn.length() > 20 ||
+        !is_visible(_name) || _name.length() > 60 ||
+        !is_visible(_author) || _author.length() > 60 ||
+        !is_visible(_keyword) || _keyword.length() > 60 ||
+        _price.length() > 13) {
+        throw Exception("Invalid\n");
+    }
     //合法，则更新数据
     if (!_name.empty()) {
         name_to_pos.delete_node(UllNode(new_book.book_name.value, ans[0]));
@@ -275,6 +312,10 @@ void BookManagement::ImportBook(Command &line, AccountManagement &accounts, LogM
 
     string _quantity = line.next_token();
     string s = line.next_token();
+    if (!is_num(_quantity) || _quantity.length() > 10 ||
+        s.length() > 13  || stoi(_quantity) > 2147483647) {
+        throw Exception("Invalid\n");
+    }
 
     if (!accounts.login_stack.back().selected_book_id) {
         //没有选中书本
@@ -304,6 +345,10 @@ void BookManagement::Buy(Command &line, AccountManagement &accounts, LogManageme
 
     string _isbn = line.next_token();
     string s = line.next_token();
+    if (!is_visible(_isbn) || _isbn.length() > 20 ||
+        !is_num(s) || s.length() > 10 || stoi(s) > 2147483647) {
+        throw Exception("Invalid\n");
+    }
     int _quantity = 0;
     _quantity = stoi(s);
 
@@ -357,7 +402,7 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
     //否则开始匹配
     if (temp[1] == 'n') {
         _name = temp.substr(7, temp.length() - 8);
-        if (_name.empty()) {
+        if (_name.empty() || !is_visible(_name) || _name.length() > 60) {
             throw Exception("Invalid\n");
         } else {
             name_to_pos.find_node(_name, ans);
@@ -385,7 +430,7 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
             }//判断 | ,此处只会有一个关键词
             _keyword += temp[i];
         }
-        if (_keyword.empty()) {
+        if (_keyword.empty() || !is_visible(_keyword) || _keyword.length() > 60) {
             throw Exception("Invalid\n");
         } else {
             keyword_to_pos.find_node(_keyword, ans);
@@ -408,7 +453,7 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
     }
     if (temp[1] == 'I') {
         _isbn = temp.substr(6, temp.length() - 6);
-        if (_isbn.empty()) {
+        if (_isbn.empty() || !is_visible(_isbn) || _isbn.length() > 20) {
             throw Exception("Invalid\n");
         } else {
             isbn_to_pos.find_node(_isbn, ans);
@@ -426,7 +471,7 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
     }
     if (temp[1] == 'a') {
         _author = temp.substr(9, temp.length() - 10);
-        if (_author.empty()) {
+        if (_author.empty() || !is_visible(_author) || _author.length() > 60) {
             throw Exception("Invalid\n");
         } else {
             author_to_pos.find_node(_author, ans);

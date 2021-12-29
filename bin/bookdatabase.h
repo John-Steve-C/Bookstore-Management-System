@@ -134,6 +134,8 @@ public:
     void Modify(Command &line, AccountManagement &accounts, LogManagement &logs); // 检查是否有权限
 
     void ImportBook(Command &line, AccountManagement &accounts, LogManagement &logs); // 检查是否有权限
+
+    bool is_visible(const string &x);
 };
 
 #endif //BOOKSTORE_BOOKDATABASE_H

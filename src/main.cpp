@@ -11,7 +11,7 @@
 int main() {
     int line = 0;
 
-//    freopen("1.in","r",stdin); freopen("ans.txt","w",stdout);
+    freopen("test.in","r",stdin); freopen("ans.txt","w",stdout);
 
     string command_input;
     AccountManagement accounts;
@@ -23,9 +23,11 @@ int main() {
 //        cout << line << endl;
         try {
             Command cmd(command_input);
+            //todo:长度上限
             if (command_input.length() > 1024) {
                 throw Exception("Invalid\n");
             }
+            //todo:是否有不在ACSII范围中的的字符
             for (int i = 0;i < command_input.length(); ++i) {
                 if (command_input[i] < 0 || command_input[i] > 127) {
                     throw Exception("Invalid\n");
