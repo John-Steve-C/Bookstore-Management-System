@@ -11,7 +11,7 @@
 int main() {
     int line = 0;
 
-//    freopen("test.in","r",stdin); freopen("ans.txt","w",stdout);
+    freopen("test.in","r",stdin); freopen("ans.txt","w",stdout);
 
     string command_input;
     AccountManagement accounts;
@@ -71,11 +71,15 @@ int main() {
             //todo:log_system
             else if (order == "report") {
                 order = cmd.next_token();
-                if (order == "myself") {}
+                if (order == "myself") {
+                    logs.Report_myself(cmd, accounts);
+                }
                 else if (order == "finance") {
                     logs.ShowFinance();
                 }
-                else if (order == "employee") {}
+                else if (order == "employee") {
+                    logs.Report_employee(cmd, accounts);
+                }
             }
             else if (order == "log") {}
 

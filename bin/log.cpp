@@ -1,4 +1,5 @@
 #include "log.h"
+#include "account.h"
 
 //class LogManagement
 
@@ -16,7 +17,7 @@ void LogManagement::ShowFinance(int limit) {
 
     log_data.get_info(num, 1);
     //超限,失败
-    if (limit > num) {
+    if (limit > num || limit > 2147483647 || num > 2147483647) {
         throw Exception("Invalid\n");
     }
     //没有参数,全部输出
@@ -35,7 +36,17 @@ void LogManagement::ShowFinance(int limit) {
          << " - " << fixed << setprecision(2) << dec << "\n";
 }
 
-void LogManagement::Report(Command &line, AccountManagement &accounts) {}
+void LogManagement::Report_employee(Command &line, AccountManagement &accounts) {
+    if (accounts.get_current_Priority() < 7) {
+        throw Exception("Invalid\n");
+    }
+}
+
+void LogManagement::Report_myself(Command &line, AccountManagement &accounts) {
+    if (accounts.get_current_Priority() < 3) {
+        throw Exception("Invalid\n");
+    }
+}
 
 void LogManagement::Log_ch(Command &line) {}
 

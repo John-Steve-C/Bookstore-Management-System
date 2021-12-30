@@ -31,6 +31,21 @@ bool is_num(const string &x) {
     return true;
 }
 
+bool is_double(const string &x) {
+    int cnt = 0;
+    if (x.empty()) return true;
+    if (x[0] == '.' || x[x.length() - 1] == '.') return false;
+    for (int i = 0;i < x.length() - 1; ++i) {
+        if (x[i] == '.') cnt++;
+        else {
+            if (x[i] < '0' || x[i] > '9')
+                return false;
+        }
+    }
+    if (cnt != 1) return false;
+    return true;
+}
+
 //class ISBN
 
 ISBN::ISBN(const std::string &s) {
@@ -275,7 +290,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
         !is_vis_quote(_name) || _name.length() > 60 ||
         !is_vis_quote(_author) || _author.length() > 60 ||
         !is_vis_quote(_keyword) || _keyword.length() > 60 ||
-        _price.length() > 13) {
+        _price.length() > 13 || !is_double(_price)) {
         throw Exception("Invalid\n");
     }
     //合法，则更新数据
@@ -324,7 +339,8 @@ void BookManagement::ImportBook(Command &line, AccountManagement &accounts, LogM
     string _quantity = line.next_token();
     string s = line.next_token();
     if (!is_num(_quantity) || _quantity.length() > 10 ||
-        s.length() > 13  || stoi(_quantity) > 2147483647) {
+        s.length() > 13  || stoi(_quantity) > 2147483647 ||
+            !is_double(s)) {
         throw Exception("Invalid\n");
     }
 

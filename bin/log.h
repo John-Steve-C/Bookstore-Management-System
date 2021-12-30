@@ -29,6 +29,8 @@ public:
     char description[150];
     bool if_earn = false; // 表示是否是收入
     double Amount = 0;
+
+    Log() = default;
 };
 
 class LogManagement {
@@ -39,7 +41,9 @@ private:
 public:
     LogManagement();
 
-    void Report(Command& line, AccountManagement& accounts);
+    void Report_employee(Command& line, AccountManagement& accounts);
+
+    void Report_myself(Command &line, AccountManagement& accounts);
 
     void AddLog(Log& log); // 把 log 放进文件的同时还需要检查是否有交易
 
