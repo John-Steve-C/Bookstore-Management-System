@@ -54,7 +54,8 @@ int main() {
                 if (temp_cmd.next_token() == "finance") {
                     //说明是日志
                     //权限判断()
-                    if (accounts.get_current_Priority() < 7)
+                    if (accounts.get_current_Priority() < 7 ||
+                        (cmd.cnt != 2 && cmd.cnt != 3) )
                         throw Exception("Invalid\n");
                     string limit = temp_cmd.next_token();
                     if (limit.empty()) logs.ShowFinance();

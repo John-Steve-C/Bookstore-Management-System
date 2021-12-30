@@ -220,7 +220,8 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
 
 
     while (!temp_command.empty()) {
-        if (temp_command[1] == 'n') {
+        if (temp_command.substr(0, 6) == "-name=" &&
+            temp_command[6] == '\"' && temp_command.back() == '\"') {
             if (_name.empty()) {
                 _name = temp_command.substr(7, temp_command.length() - 8);
             } else { //重复指定参数
@@ -228,7 +229,8 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
             }
         }
 
-        if (temp_command[1] == 'k') {
+        if (temp_command.substr(0, 9) == "-keyword=" &&
+            temp_command[9] == '\"' && temp_command.back() == '\"') {
             //更改分隔符
             s = temp_command.substr(10, temp_command.length() - 11);
             //判断是否有连续多个|出现
@@ -236,6 +238,9 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
                 if (s[i] == '|' && s[i - 1] == '|')
                     throw Exception("Invalid\n");
             }
+            //判断开头结尾是否有 '|'
+            if (s[0] == '|' || s.back() == '|')
+                throw Exception("Invalid\n");
 
             Command new_key(s, '|'), old_key(new_book.keyword.value, '|');
             //old是旧的keyword
@@ -250,7 +255,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
                 ns = new_key.next_token();
             }
         }
-        if (temp_command[1] == 'I') {
+        if (temp_command.substr(0, 6) == "-ISBN=") {
             if (_isbn.empty()) {
                 _isbn = temp_command.substr(6, temp_command.length() - 6);
                 //不能修改相同的isbn
@@ -267,14 +272,15 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
                 throw Exception("Invalid\n");
             }
         }
-        if (temp_command[1] == 'a') {
+        if (temp_command.substr(0, 8) == "-author=" &&
+            temp_command[8] == '\"' && temp_command.back() == '\"') {
             if (_author.empty()) {
                 _author = temp_command.substr(9, temp_command.length() - 10);
             } else {
                 throw Exception("Invalid\n");
             }
         }
-        if (temp_command[1] == 'p') {
+        if (temp_command.substr(0, 7) == "-price=") {
             if (_price.empty()) {
                 _price = temp_command.substr(7, temp_command.length() - 7);
                 //没有映射关系,不用修改
@@ -427,7 +433,8 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
     }
 
     //否则开始匹配
-    if (temp[1] == 'n') {
+    if (temp.substr(0, 6) == "-name=" &&
+        temp[6] == '\"' && temp.back() == '\"') {
         _name = temp.substr(7, temp.length() - 8);
         if (_name.empty() || !is_vis_quote(_name) || _name.length() > 60) {
             throw Exception("Invalid\n");
@@ -450,12 +457,17 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
             return;
         }
     }
-    if (temp[1] == 'k') {
+    if (temp.substr(0, 9) == "-keyword=" &&
+        temp[9] == '\"' && temp.back() == '\"') {
         for (int i = 10; i < temp.length() - 1; ++i) {
             if (temp[i] == '|') {
                 throw Exception("Invalid\n");
             }//判断 | ,此处只会有一个关键词
             _keyword += temp[i];
+        }
+        //开头结尾
+        if (_keyword[0] == '|' || _keyword.back() == '|') {
+            throw Exception("Invalid\n");
         }
         if (_keyword.empty() || !is_vis_quote(_keyword) || _keyword.length() > 60) {
             throw Exception("Invalid\n");
@@ -478,7 +490,7 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
             return;
         }
     }
-    if (temp[1] == 'I') {
+    if (temp.substr(0, 6) == "-ISBN=") {
         _isbn = temp.substr(6, temp.length() - 6);
         if (_isbn.empty() || !is_visible(_isbn) || _isbn.length() > 20) {
             throw Exception("Invalid\n");
@@ -496,7 +508,8 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
             return;
         }
     }
-    if (temp[1] == 'a') {
+    if (temp.substr(0,8) == "-author=" &&
+        temp[8] == '\"' && temp.back() == '\"') {
         _author = temp.substr(9, temp.length() - 10);
         if (_author.empty() || !is_vis_quote(_author) || _author.length() > 60) {
             throw Exception("Invalid\n");
@@ -519,4 +532,6 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
             return;
         }
     }
+    //否则就是不合法
+//    throw Exception("Invalid\n");
 }
