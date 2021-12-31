@@ -299,7 +299,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
             if (_price.empty()) {
                 _price = temp_command.substr(7, temp_command.length() - 7);
                 //没有映射关系,不用修改
-                if (_price.empty() || !is_double(_price) || _price.length() > 13) {
+                if (_price.empty() || !is_double(_price) || _price.length() > 13 || stod(_price) < 0) {
                     throw Exception("Invalid\n");
                 }
             } else {
@@ -315,6 +315,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
 
     //判断本身是否合法?
     // todo:不能放在下面，要放在读取的地方?
+    //上面已经判断,所以没有用?
     if (!is_visible(_isbn) || _isbn.length() > 20 ||
         !is_vis_quote(_name) || _name.length() > 60 ||
         !is_vis_quote(_author) || _author.length() > 60 ||
@@ -357,9 +358,9 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
         strcpy(new_book.keyword.value, s.c_str());
     }
 
-    if (_name.empty() && _author.empty() && _isbn.empty() && _price.empty() && tong.empty())
-        throw Exception("Invalid\n");
-    else
+//    if (_name.empty() && _author.empty() && _isbn.empty() && _price.empty() && tong.empty())
+//        throw Exception("Invalid\n");
+//    else
         book_data.update(new_book, ans[0]);
 }
 
@@ -372,7 +373,7 @@ void BookManagement::ImportBook(Command &line, AccountManagement &accounts, LogM
     string s = line.next_token();
     if (!is_num(_quantity) || _quantity.length() > 10 ||
         s.length() > 13  || stoi(_quantity) > 2147483647 ||
-            !is_double(s)) {
+            !is_double(s) || stoi(_quantity) < 0 || stod(s) < 0) {
         throw Exception("Invalid\n");
     }
 
@@ -405,7 +406,8 @@ void BookManagement::Buy(Command &line, AccountManagement &accounts, LogManageme
     string _isbn = line.next_token();
     string s = line.next_token();
     if (!is_visible(_isbn) || _isbn.length() > 20 ||
-        !is_num(s) || s.length() > 10 || stoi(s) > 2147483647) {
+        !is_num(s) || s.length() > 10 ||
+        stoi(s) > 2147483647 || stoi(s) < 0) {
         throw Exception("Invalid\n");
     }
     int _quantity = 0;
