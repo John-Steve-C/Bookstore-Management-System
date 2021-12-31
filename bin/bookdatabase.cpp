@@ -299,7 +299,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
             if (_price.empty()) {
                 _price = temp_command.substr(7, temp_command.length() - 7);
                 //没有映射关系,不用修改
-                if (_price.empty() || !is_double(_price)) {
+                if (_price.empty() || !is_double(_price) || _price.length() > 13) {
                     throw Exception("Invalid\n");
                 }
             } else {
@@ -550,7 +550,6 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
             } else {
                 cout << '\n';
             }
-            return;
         }
     }
     else//否则就是不合法
