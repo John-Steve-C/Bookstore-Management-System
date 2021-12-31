@@ -228,7 +228,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
                 throw Exception("Invalid\n");
             }
         }
-
+        else
         if (temp_command.substr(0, 9) == "-keyword=" &&
             temp_command[9] == '\"' && temp_command.back() == '\"') {
             //更改分隔符
@@ -255,6 +255,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
                 ns = new_key.next_token();
             }
         }
+        else
         if (temp_command.substr(0, 6) == "-ISBN=") {
             if (_isbn.empty()) {
                 _isbn = temp_command.substr(6, temp_command.length() - 6);
@@ -272,6 +273,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
                 throw Exception("Invalid\n");
             }
         }
+        else
         if (temp_command.substr(0, 8) == "-author=" &&
             temp_command[8] == '\"' && temp_command.back() == '\"') {
             if (_author.empty()) {
@@ -280,6 +282,7 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
                 throw Exception("Invalid\n");
             }
         }
+        else
         if (temp_command.substr(0, 7) == "-price=") {
             if (_price.empty()) {
                 _price = temp_command.substr(7, temp_command.length() - 7);
@@ -288,6 +291,10 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
                 throw Exception("Invalid\n");
             }
         }
+        else {//防止多余的不合法参数
+            throw Exception("Invalid\n");
+        }
+
         temp_command = line.next_token();
     }
 
@@ -407,8 +414,9 @@ void BookManagement::Buy(Command &line, AccountManagement &accounts, LogManageme
 }
 
 void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagement &logs) {
-    //权限不足
-    if (accounts.get_current_Priority() < 1) {
+    //权限不足,或者参数个数不是1/2
+    if (accounts.get_current_Priority() < 1 ||
+        (line.cnt != 2 && line.cnt != 1)) {
         throw Exception("Invalid\n");
     }
 
@@ -533,5 +541,5 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
         }
     }
     //否则就是不合法
-//    throw Exception("Invalid\n");
+    throw Exception("Invalid\n");
 }

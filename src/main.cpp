@@ -72,6 +72,9 @@ int main() {
             //todo:log_system
             else if (order == "report") {
                 order = cmd.next_token();
+                if (cmd.cnt != 2) {
+                    throw Exception("Invalid\n");
+                }
                 if (order == "myself") {
                     logs.Report_myself(cmd, accounts);
                 }
@@ -82,7 +85,13 @@ int main() {
                     logs.Report_employee(cmd, accounts);
                 }
             }
-            else if (order == "log") {}
+            else if (order == "log") {
+                if (cmd.cnt != 1) {
+                    throw Exception("Invalid\n");
+                } else {
+
+                }
+            }
 
             //todo:错误的情况
             else throw Exception("Invalid\n");

@@ -37,13 +37,13 @@ void LogManagement::ShowFinance(int limit) {
 }
 
 void LogManagement::Report_employee(Command &line, AccountManagement &accounts) {
-    if (accounts.get_current_Priority() < 7) {
+    if (accounts.get_current_Priority() < 7 || line.cnt != 2) {
         throw Exception("Invalid\n");
     }
 }
 
 void LogManagement::Report_myself(Command &line, AccountManagement &accounts) {
-    if (accounts.get_current_Priority() < 3) {
+    if (accounts.get_current_Priority() < 3 || line.cnt != 2) {
         throw Exception("Invalid\n");
     }
 }
