@@ -60,9 +60,12 @@ int main() {
                     if (accounts.get_current_Priority() < 7)
                         throw Exception("Invalid\n");
                     string limit = temp_cmd.next_token();
-                    if (!isdigit(limit)) {
-                        throw Exception("Invalid\n");
+                    for (int i = 0;i < limit.length(); ++i) {
+                        if (!isdigit(limit[i])) {
+                            throw Exception("Invalid\n");
+                        }
                     }
+
                     if (limit.empty()) logs.ShowFinance();
                     else logs.ShowFinance(stoi(limit));
                 } else {//说明是书本
