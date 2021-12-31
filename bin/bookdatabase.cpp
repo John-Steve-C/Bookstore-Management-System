@@ -224,6 +224,9 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
             temp_command[6] == '\"' && temp_command.back() == '\"') {
             if (_name.empty()) {
                 _name = temp_command.substr(7, temp_command.length() - 8);
+                if (_name.empty() || !is_vis_quote(_name) || _name.length() > 60) {
+                    throw Exception("Invalid\n");
+                }
             } else { //重复指定参数
                 throw Exception("Invalid\n");
             }
@@ -233,6 +236,9 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
             temp_command[9] == '\"' && temp_command.back() == '\"') {
             //更改分隔符
             s = temp_command.substr(10, temp_command.length() - 11);
+            if (s.empty() || !is_vis_quote(s) || s.length() > 60) {
+                throw Exception("Invalid\n");
+            }
             //判断是否有连续多个|出现
             for (int i = 1;i < s.length(); ++i) {
                 if (s[i] == '|' && s[i - 1] == '|')
@@ -259,6 +265,9 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
         if (temp_command.substr(0, 6) == "-ISBN=") {
             if (_isbn.empty()) {
                 _isbn = temp_command.substr(6, temp_command.length() - 6);
+                if (_isbn.empty() || !is_visible(_isbn) || _isbn.length() > 20) {
+                    throw Exception("Invalid\n");
+                }
                 //不能修改相同的isbn
                 if (strcmp(new_book.isbn.value, _isbn.c_str()) == 0) {
                     throw Exception("Invalid\n");
@@ -278,6 +287,9 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
             temp_command[8] == '\"' && temp_command.back() == '\"') {
             if (_author.empty()) {
                 _author = temp_command.substr(9, temp_command.length() - 10);
+                if (_author.empty() || !is_vis_quote(_author) || _author.length() > 60) {
+                    throw Exception("Invalid\n");
+                }
             } else {
                 throw Exception("Invalid\n");
             }
@@ -287,6 +299,9 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
             if (_price.empty()) {
                 _price = temp_command.substr(7, temp_command.length() - 7);
                 //没有映射关系,不用修改
+                if (_price.empty() || !is_double(_price)) {
+                    throw Exception("Invalid\n");
+                }
             } else {
                 throw Exception("Invalid\n");
             }
