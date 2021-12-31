@@ -313,7 +313,8 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
         temp_command = line.next_token();
     }
 
-    //判断本身是否合法
+    //判断本身是否合法?
+    // todo:不能放在下面，要放在读取的地方?
     if (!is_visible(_isbn) || _isbn.length() > 20 ||
         !is_vis_quote(_name) || _name.length() > 60 ||
         !is_vis_quote(_author) || _author.length() > 60 ||
@@ -356,7 +357,10 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
         strcpy(new_book.keyword.value, s.c_str());
     }
 
-    book_data.update(new_book, ans[0]);
+    if (_name.empty() && _author.empty() && _isbn.empty() && _price.empty() && tong.empty())
+        throw Exception("Invalid\n");
+    else
+        book_data.update(new_book, ans[0]);
 }
 
 void BookManagement::ImportBook(Command &line, AccountManagement &accounts, LogManagement &logs) {
