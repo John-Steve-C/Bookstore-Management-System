@@ -51,13 +51,18 @@ int main() {
             //todo:book_system
             else if (order == "show") {
                 Command temp_cmd(cmd);
+                if (cmd.cnt != 2 && cmd.cnt != 3) {
+                    throw Exception("Invalid\n");
+                }
                 if (temp_cmd.next_token() == "finance") {
                     //说明是日志
                     //权限判断()
-                    if (accounts.get_current_Priority() < 7 ||
-                        (cmd.cnt != 2 && cmd.cnt != 3) )
+                    if (accounts.get_current_Priority() < 7)
                         throw Exception("Invalid\n");
                     string limit = temp_cmd.next_token();
+                    if (!isdigit(limit)) {
+                        throw Exception("Invalid\n");
+                    }
                     if (limit.empty()) logs.ShowFinance();
                     else logs.ShowFinance(stoi(limit));
                 } else {//说明是书本
