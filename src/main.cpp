@@ -20,7 +20,7 @@ int main() {
 
     while (getline(cin, command_input)) {
         line++;
-        cout << line << endl;
+//        cout << line << endl;
         try {
             Command cmd(command_input);
             //todo:长度上限
