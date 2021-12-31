@@ -20,7 +20,7 @@ int main() {
 
     while (getline(cin, command_input)) {
         line++;
-//        cout << line << endl;
+        cout << line << endl;
         try {
             Command cmd(command_input);
             //todo:长度上限
@@ -71,6 +71,9 @@ int main() {
 
             //todo:log_system
             else if (order == "report") {
+                //todo:尚未完成,直接throw
+                throw Exception("Invalid\n");
+
                 order = cmd.next_token();
                 if (cmd.cnt != 2) {
                     throw Exception("Invalid\n");
@@ -86,6 +89,9 @@ int main() {
                 }
             }
             else if (order == "log") {
+                //todo:尚未完成,直接throw
+                throw Exception("Invalid\n");
+
                 if (cmd.cnt != 1) {
                     throw Exception("Invalid\n");
                 } else {

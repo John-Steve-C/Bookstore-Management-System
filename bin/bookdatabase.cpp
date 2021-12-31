@@ -437,10 +437,8 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
         } else {
             cout << '\n';
         }
-        return;
     }
-
-    //否则开始匹配
+    else//否则开始匹配
     if (temp.substr(0, 6) == "-name=" &&
         temp[6] == '\"' && temp.back() == '\"') {
         _name = temp.substr(7, temp.length() - 8);
@@ -462,9 +460,9 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
             } else {
                 cout << '\n';
             }
-            return;
         }
     }
+    else
     if (temp.substr(0, 9) == "-keyword=" &&
         temp[9] == '\"' && temp.back() == '\"') {
         for (int i = 10; i < temp.length() - 1; ++i) {
@@ -495,9 +493,9 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
             } else {
                 cout << '\n';
             }
-            return;
         }
     }
+    else
     if (temp.substr(0, 6) == "-ISBN=") {
         _isbn = temp.substr(6, temp.length() - 6);
         if (_isbn.empty() || !is_visible(_isbn) || _isbn.length() > 20) {
@@ -513,9 +511,9 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
             } else {
                 cout << '\n';
             }
-            return;
         }
     }
+    else
     if (temp.substr(0,8) == "-author=" &&
         temp[8] == '\"' && temp.back() == '\"') {
         _author = temp.substr(9, temp.length() - 10);
@@ -540,6 +538,6 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
             return;
         }
     }
-    //否则就是不合法
-    throw Exception("Invalid\n");
+    else//否则就是不合法
+        throw Exception("Invalid\n");
 }
