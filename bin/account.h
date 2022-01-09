@@ -59,6 +59,7 @@ struct LogInAccount {
 
 class AccountManagement {
     friend class BookManagement;
+    friend class LogManagement;
 private:
     int num;
     std::vector<LogInAccount> login_stack; // 用于储存登录的账户及其选定的书本 id，不可使用 ISBN 作为指定对象，因为 ISBN 可能会被之后其他用户改变

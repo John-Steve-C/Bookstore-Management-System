@@ -207,6 +207,11 @@ void AccountManagement::add_User(Command &line, LogManagement &logs) {
     User temp(_ID, _name, _password, _priority[0] - '0');
     int pos = user_data.write(temp);
     id_to_pos.add_node(UllNode(_ID, pos));
+
+    Log tp_log;
+    tp_log.behavoir = ADDUSER;
+    strcpy(tp_log.user_ID, _ID.c_str());
+    logs.AddLog(tp_log);
 }
 
 void AccountManagement::change_password(Command &line) {

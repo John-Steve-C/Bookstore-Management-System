@@ -104,7 +104,7 @@ int main() {
                 if (cmd.cnt != 1) {
                     throw Exception("Invalid\n");
                 } else {
-
+                    logs.Log_All(cmd, accounts);
                 }
             }
 

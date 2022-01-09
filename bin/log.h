@@ -20,10 +20,10 @@ using std::vector;
 using std::string;
 const int Maxn = 1e5;
 
-enum Behavior {AddUser, Delete, Show, Buy, Select, Modify, Import};
+enum Behavior {LOGIN, ADDUSER, DELETE, SHOW, BUY, SELECT, MODIFY, IMPORT};
 class Log {
 public:
-    User *user;
+    char *user_ID;
     //不用指针会报错?
     Behavior behavoir;
     char description[150];
@@ -49,7 +49,9 @@ public:
 
     void ShowFinance(int limit = -1); // 若为 -1，则显示全部
 
-    void Log_ch(Command& line); // log command，检查有无额外的 token
+    void Log_All(Command &line, AccountManagement& accounts); //
+
+    void Print(const Behavior &x);
 };
 
 #endif //BOOKSTORE_LOG_H

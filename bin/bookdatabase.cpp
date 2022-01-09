@@ -192,6 +192,11 @@ void BookManagement::Select(Command &line, AccountManagement &accounts, LogManag
     Book temp;
     book_data.read(temp, ans[0]);
     accounts.User_select(temp.book_ID);
+
+    Log tp_log;
+    tp_log.user_ID = accounts.login_stack.back().user.ID.value;
+    tp_log.behavoir = SELECT;
+    logs.AddLog(tp_log);
 }
 
 //book_data和..._to_pos都要修改,但是id_to_pos不变
@@ -362,6 +367,11 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
 //        throw Exception("Invalid\n");
 //    else
         book_data.update(new_book, ans[0]);
+
+    Log tp_log;
+    tp_log.user_ID = accounts.login_stack.back().user.ID.value;
+    tp_log.behavoir = MODIFY;
+    logs.AddLog(tp_log);
 }
 
 void BookManagement::ImportBook(Command &line, AccountManagement &accounts, LogManagement &logs) {
@@ -391,6 +401,8 @@ void BookManagement::ImportBook(Command &line, AccountManagement &accounts, LogM
     temp.total_cost += stod(s);
 
     Log tp_log;
+    tp_log.user_ID = accounts.login_stack.back().user.ID.value;
+    tp_log.behavoir = IMPORT;
     tp_log.if_earn = false;
     tp_log.Amount = stod(s);
     logs.AddLog(tp_log);
@@ -429,6 +441,8 @@ void BookManagement::Buy(Command &line, AccountManagement &accounts, LogManageme
     cout << fixed << setprecision(2) << (double) temp.price * _quantity << endl;
 
     Log tp_log;
+    tp_log.user_ID = accounts.login_stack.back().user.ID.value;
+    tp_log.behavoir = BUY;
     tp_log.if_earn = true;
     tp_log.Amount = (double) temp.price * _quantity;
     logs.AddLog(tp_log);
@@ -560,4 +574,9 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
     }
     else//否则就是不合法
         throw Exception("Invalid\n");
+
+    Log tp_log;
+    tp_log.user_ID = accounts.login_stack.back().user.ID.value;
+    tp_log.behavoir = SHOW;
+    logs.AddLog(tp_log);
 }
