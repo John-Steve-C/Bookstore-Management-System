@@ -196,6 +196,7 @@ void BookManagement::select(Command &line, AccountManagement &accounts, LogManag
     Log tp_log;
     tp_log.user_ID = accounts.login_stack.back().user.ID.value;
     tp_log.behavoir = SELECT;
+    strcpy(tp_log.description, line.buffer.c_str());
     logs.add_log(tp_log);
 }
 
@@ -371,6 +372,7 @@ void BookManagement::modify(Command &line, AccountManagement &accounts, LogManag
     Log tp_log;
     tp_log.user_ID = accounts.login_stack.back().user.ID.value;
     tp_log.behavoir = MODIFY;
+    strcpy(tp_log.description, line.buffer.c_str());
     logs.add_log(tp_log);
 }
 
@@ -405,6 +407,7 @@ void BookManagement::import_book(Command &line, AccountManagement &accounts, Log
     tp_log.behavoir = IMPORT;
     tp_log.if_earn = false;
     tp_log.Amount = stod(s);
+    strcpy(tp_log.description, line.buffer.c_str());
     logs.add_log(tp_log);
 
     book_data.update(temp, ans[0]);
@@ -445,6 +448,7 @@ void BookManagement::buy(Command &line, AccountManagement &accounts, LogManageme
     tp_log.behavoir = BUY;
     tp_log.if_earn = true;
     tp_log.Amount = (double) temp.price * _quantity;
+    strcpy(tp_log.description, line.buffer.c_str());
     logs.add_log(tp_log);
 }
 
@@ -578,5 +582,6 @@ void BookManagement::show(Command &line, AccountManagement &accounts, LogManagem
     Log tp_log;
     tp_log.user_ID = accounts.login_stack.back().user.ID.value;
     tp_log.behavoir = SHOW;
+    strcpy(tp_log.description, line.buffer.c_str());
     logs.add_log(tp_log);
 }

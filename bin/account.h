@@ -77,14 +77,14 @@ public:
 
     AccountManagement(const string &file_name); // 注意检查是否有用户名为 root，密码为 sjtu，权限为 {7} 的超级管理员账户，如没有，则添加该用户
 
-    void switch_User(Command &line); // su command
+    void switch_User(Command &line, LogManagement &logs); // su command
 
-    void LogOut(Command &line); // logout command
+    void LogOut(Command &line, LogManagement &logs); // logout command
 
-    void register_User(Command &line); // register command
+    void register_User(Command &line, LogManagement &logs); // register command
     //权限为0,只能加顾客
 
-    void change_password(Command &line); // passwd command
+    void change_password(Command &line, LogManagement &logs); // passwd command
 
     void add_User(Command &line, LogManagement &logs); // useradd command
     //权限为3,可以加员工

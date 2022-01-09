@@ -88,7 +88,7 @@ AccountManagement::AccountManagement(const string &file_name) {
 
 }
 
-void AccountManagement::switch_User(Command &line) {
+void AccountManagement::switch_User(Command &line, LogManagement &logs) {
     //登录的时候,不仅要查找是否注册过,
     //还要在登录栈中查找是否已经登录过?
     //似乎可以重复登录同一账户?
@@ -138,17 +138,27 @@ void AccountManagement::switch_User(Command &line) {
             throw Exception("Invalid\n");
         }
     }
+
+    Log tp_log;
+    tp_log.behavoir = LOGIN;
+    strcpy(tp_log.user_ID, login_stack.back().user.ID.value);
+    strcpy(tp_log.description, line.buffer.c_str());
+    logs.add_log(tp_log);
 }
 
-void AccountManagement::LogOut(Command &line) {
+void AccountManagement::LogOut(Command &line, LogManagement &logs) {
     if (line.cnt != 1 || login_stack.empty()) {
         throw Exception("Invalid\n");
     }    //没有登录账户,异常
 
     login_stack.pop_back();
+    Log tp_log;
+    strcpy(tp_log.user_ID, login_stack.back().user.ID.value);
+    strcpy(tp_log.description, line.buffer.c_str());
+    logs.add_log(tp_log);
 }
 
-void AccountManagement::register_User(Command &line) {
+void AccountManagement::register_User(Command &line, LogManagement &logs) {
     string _ID = line.next_token();
     string _password = line.next_token();
     string _name = line.next_token();
@@ -174,6 +184,11 @@ void AccountManagement::register_User(Command &line) {
     //只能注册权限为1的顾客账户
     int pos = user_data.write(temp);
     id_to_pos.add_node(UllNode(_ID, pos));
+
+    Log tp_log;
+    strcpy(tp_log.user_ID, login_stack.back().user.ID.value);
+    strcpy(tp_log.description, line.buffer.c_str());
+    logs.add_log(tp_log);
 }
 
 void AccountManagement::add_User(Command &line, LogManagement &logs) {
@@ -211,10 +226,11 @@ void AccountManagement::add_User(Command &line, LogManagement &logs) {
     Log tp_log;
     tp_log.behavoir = ADDUSER;
     strcpy(tp_log.user_ID, _ID.c_str());
+    strcpy(tp_log.description, line.buffer.c_str());
     logs.add_log(tp_log);
 }
 
-void AccountManagement::change_password(Command &line) {
+void AccountManagement::change_password(Command &line, LogManagement &logs) {
     string ID = line.next_token();
     string old_password = line.next_token();
     string new_password = line.next_token();
@@ -259,6 +275,11 @@ void AccountManagement::change_password(Command &line) {
             throw Exception("Invalid\n");
         }
     }
+
+    Log tp_log;
+    strcpy(tp_log.user_ID, login_stack.back().user.ID.value);
+    strcpy(tp_log.description, line.buffer.c_str());
+    logs.add_log(tp_log);
 }
 
 int AccountManagement::get_current_Priority() const {
@@ -294,8 +315,8 @@ void AccountManagement::remove_User(Command &line, LogManagement &logs) {
     id_to_pos.delete_node(UllNode(ID, ans[0]));
 
     Log tp_log;
-    tp_log.behavoir = DELETE;
     strcpy(tp_log.user_ID, login_stack.back().user.ID.value);
+    strcpy(tp_log.description, line.buffer.c_str());
     logs.add_log(tp_log);
 }
 

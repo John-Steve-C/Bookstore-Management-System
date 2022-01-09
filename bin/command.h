@@ -18,6 +18,8 @@ using std::istream;
 using std::ostream;
 
 class Command {
+    friend class AccountManagement;
+    friend class BookManagement;
 private:
     string buffer = "";//存储字符串的缓冲区
     int cur = 0;//当前指针的位置

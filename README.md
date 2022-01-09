@@ -245,6 +245,9 @@
 ### command.h
 
 ```cpp
+#ifndef BOOKSTORE_COMMAND_H
+#define BOOKSTORE_COMMAND_H
+
 #include <string>
 #include <ostream>
 #include <istream>
@@ -258,6 +261,8 @@ using std::istream;
 using std::ostream;
 
 class Command {
+    friend class AccountManagement;
+    friend class BookManagement;
 private:
     string buffer = "";//存储字符串的缓冲区
     int cur = 0;//当前指针的位置
@@ -364,14 +369,14 @@ public:
 
     AccountManagement(const string &file_name); // 注意检查是否有用户名为 root，密码为 sjtu，权限为 {7} 的超级管理员账户，如没有，则添加该用户
 
-    void switch_User(Command &line); // su command
+    void switch_User(Command &line, LogManagement &logs); // su command
 
-    void LogOut(Command &line); // logout command
+    void LogOut(Command &line, LogManagement &logs); // logout command
 
-    void register_User(Command &line); // register command
+    void register_User(Command &line, LogManagement &logs); // register command
     //权限为0,只能加顾客
 
-    void change_password(Command &line); // passwd command
+    void change_password(Command &line, LogManagement &logs); // passwd command
 
     void add_User(Command &line, LogManagement &logs); // useradd command
     //权限为3,可以加员工
@@ -382,8 +387,6 @@ public:
 
     [[nodiscard]] int get_current_Priority() const;
 };
-
-
 ```
 
 ### bookdatabase.h 

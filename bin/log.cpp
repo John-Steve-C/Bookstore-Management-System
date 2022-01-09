@@ -50,9 +50,7 @@ void LogManagement::report_employee(Command &line, AccountManagement &accounts) 
         accounts.id_to_pos.find_node(temp.user_ID, ans);
         accounts.user_data.read(tp_user, ans[0]);
         if (tp_user.get_priority() >= 3) {//只输出员工的操作
-            cout << temp.user_ID << ' ';
-            Print(temp.behavoir);
-            cout << endl;
+            cout << temp.description << endl;
         }
     }
 }
@@ -67,9 +65,7 @@ void LogManagement::report_myself(Command &line, AccountManagement &accounts) {
         class Log temp;
         log_data.read(temp, 8 + (i - 1) * sizeof(Log));
         if (strcmp(temp.user_ID, accounts.login_stack.back().user.ID.value) == 0){
-            cout << temp.user_ID << ' ';
-            Print(temp.behavoir);
-            cout << endl;
+            cout << temp.description << endl;
         }
     }
 }
@@ -83,9 +79,7 @@ void LogManagement::log_all(Command &line, AccountManagement& accounts) {
     for (int i = 1;i <= num;++i){
         class Log temp;
         log_data.read(temp, 8 + (i - 1) * sizeof(Log));
-        cout << temp.user_ID << ' ';
-        Print(temp.behavoir);
-        cout << endl;
+        cout << temp.description << endl;
     }
 }
 

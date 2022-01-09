@@ -11,7 +11,7 @@
 int main() {
     int line = 0;
 
-    freopen("test.in","r",stdin); freopen("ans.txt","w",stdout);
+//    freopen("test.in","r",stdin); freopen("ans.txt","w",stdout);
 
     string command_input;
     AccountManagement accounts;
@@ -41,10 +41,10 @@ int main() {
                 return 0;
             }
             //todo:account_system
-            if (order == "su") accounts.switch_User(cmd);
-            else if (order == "logout") accounts.LogOut(cmd);
-            else if (order == "register") accounts.register_User(cmd);
-            else if (order == "passwd") accounts.change_password(cmd);
+            if (order == "su") accounts.switch_User(cmd, logs);
+            else if (order == "logout") accounts.LogOut(cmd, logs);
+            else if (order == "register") accounts.register_User(cmd, logs);
+            else if (order == "passwd") accounts.change_password(cmd, logs);
             else if (order == "useradd") accounts.add_User(cmd, logs);
             else if (order == "delete") accounts.remove_User(cmd, logs);
 
