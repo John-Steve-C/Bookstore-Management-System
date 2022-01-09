@@ -211,7 +211,7 @@ void AccountManagement::add_User(Command &line, LogManagement &logs) {
     Log tp_log;
     tp_log.behavoir = ADDUSER;
     strcpy(tp_log.user_ID, _ID.c_str());
-    logs.AddLog(tp_log);
+    logs.add_log(tp_log);
 }
 
 void AccountManagement::change_password(Command &line) {
@@ -292,6 +292,11 @@ void AccountManagement::remove_User(Command &line, LogManagement &logs) {
 
     user_data.Delete(ans[0]);
     id_to_pos.delete_node(UllNode(ID, ans[0]));
+
+    Log tp_log;
+    tp_log.behavoir = DELETE;
+    strcpy(tp_log.user_ID, login_stack.back().user.ID.value);
+    logs.add_log(tp_log);
 }
 
 void AccountManagement::User_select(int book_id) {

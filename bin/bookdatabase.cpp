@@ -163,7 +163,7 @@ BookManagement::BookManagement() {
     keyword_to_pos.init("keyword_to_pos");
 }
 
-void BookManagement::Select(Command &line, AccountManagement &accounts, LogManagement &logs) {
+void BookManagement::select(Command &line, AccountManagement &accounts, LogManagement &logs) {
     if (accounts.get_current_Priority() < 3 || line.cnt != 2) {
         throw Exception("Invalid\n");
     }
@@ -196,12 +196,12 @@ void BookManagement::Select(Command &line, AccountManagement &accounts, LogManag
     Log tp_log;
     tp_log.user_ID = accounts.login_stack.back().user.ID.value;
     tp_log.behavoir = SELECT;
-    logs.AddLog(tp_log);
+    logs.add_log(tp_log);
 }
 
 //book_data和..._to_pos都要修改,但是id_to_pos不变
 //注意特判，如果修改的ISBN与原来相同,那么就不对
-void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManagement &logs) {
+void BookManagement::modify(Command &line, AccountManagement &accounts, LogManagement &logs) {
     if (accounts.get_current_Priority() < 3 || line.cnt <= 1) {
         throw Exception("Invalid\n");
     }
@@ -371,10 +371,10 @@ void BookManagement::Modify(Command &line, AccountManagement &accounts, LogManag
     Log tp_log;
     tp_log.user_ID = accounts.login_stack.back().user.ID.value;
     tp_log.behavoir = MODIFY;
-    logs.AddLog(tp_log);
+    logs.add_log(tp_log);
 }
 
-void BookManagement::ImportBook(Command &line, AccountManagement &accounts, LogManagement &logs) {
+void BookManagement::import_book(Command &line, AccountManagement &accounts, LogManagement &logs) {
     if (accounts.get_current_Priority() < 3 || line.cnt != 3) {
         throw Exception("Invalid\n");
     }
@@ -405,12 +405,12 @@ void BookManagement::ImportBook(Command &line, AccountManagement &accounts, LogM
     tp_log.behavoir = IMPORT;
     tp_log.if_earn = false;
     tp_log.Amount = stod(s);
-    logs.AddLog(tp_log);
+    logs.add_log(tp_log);
 
     book_data.update(temp, ans[0]);
 }
 
-void BookManagement::Buy(Command &line, AccountManagement &accounts, LogManagement &logs) {
+void BookManagement::buy(Command &line, AccountManagement &accounts, LogManagement &logs) {
     if (accounts.get_current_Priority() < 1 || line.cnt != 3) {
         throw Exception("Invalid\n");
     }
@@ -445,10 +445,10 @@ void BookManagement::Buy(Command &line, AccountManagement &accounts, LogManageme
     tp_log.behavoir = BUY;
     tp_log.if_earn = true;
     tp_log.Amount = (double) temp.price * _quantity;
-    logs.AddLog(tp_log);
+    logs.add_log(tp_log);
 }
 
-void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagement &logs) {
+void BookManagement::show(Command &line, AccountManagement &accounts, LogManagement &logs) {
     //权限不足,或者参数个数不是1/2
     if (accounts.get_current_Priority() < 1 ||
         (line.cnt != 2 && line.cnt != 1)) {
@@ -578,5 +578,5 @@ void BookManagement::Show(Command &line, AccountManagement &accounts, LogManagem
     Log tp_log;
     tp_log.user_ID = accounts.login_stack.back().user.ID.value;
     tp_log.behavoir = SHOW;
-    logs.AddLog(tp_log);
+    logs.add_log(tp_log);
 }

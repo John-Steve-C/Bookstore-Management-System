@@ -507,18 +507,18 @@ private:
 public:
     BookManagement();
     // 下面的指令请调用 accounts::getCurrentPriority() 来获取权限
-    void Show(Command &line, AccountManagement &accounts,
+    void show(Command &line, AccountManagement &accounts,
               LogManagement &logs);
     // 先判断是不是 show finance（都是以 show 开头），然后分四种情况讨论，如无参数，则按照 ISBN 输出全部（traverse 函数）
     // 我把这个判断的过程放在main函数中实现,事实上line中的cur在第二个关键词
 
-    void Buy(Command &line, AccountManagement &accounts, LogManagement &logs);
+    void buy(Command &line, AccountManagement &accounts, LogManagement &logs);
 
-    void Select(Command &line, AccountManagement &accounts, LogManagement &logs); // 检查是否有权限，检查是否有 ISBN，然后选中
+    void select(Command &line, AccountManagement &accounts, LogManagement &logs); // 检查是否有权限，检查是否有 ISBN，然后选中
 
-    void Modify(Command &line, AccountManagement &accounts, LogManagement &logs); // 检查是否有权限
+    void modify(Command &line, AccountManagement &accounts, LogManagement &logs); // 检查是否有权限
 
-    void ImportBook(Command &line, AccountManagement &accounts, LogManagement &logs); // 检查是否有权限
+    void import_book(Command &line, AccountManagement &accounts, LogManagement &logs); // 检查是否有权限
 
     bool is_visible(const string &x);
 };
@@ -823,12 +823,6 @@ public:
 ### log.h
 
 ```CPP
-// Created by Leonard C on 2021/12/4.
-//
-
-#ifndef BOOKSTORE_LOG_H
-#define BOOKSTORE_LOG_H
-
 #include <vector>
 #include <string>
 #include <iomanip>
@@ -866,18 +860,16 @@ private:
 public:
     LogManagement();
 
-    void Report_employee(Command& line, AccountManagement& accounts);
+    void report_employee(Command& line, AccountManagement& accounts);
 
-    void Report_myself(Command &line, AccountManagement& accounts);
+    void report_myself(Command &line, AccountManagement& accounts);
 
-    void AddLog(Log& log); // 把 log 放进文件的同时还需要检查是否有交易
+    void add_log(Log& log); // 把 log 放进文件的同时还需要检查是否有交易
 
-    void ShowFinance(int limit = -1); // 若为 -1，则显示全部
+    void show_finance(int limit = -1); // 若为 -1，则显示全部
 
-    void Log_All(Command &line, AccountManagement& accounts); //
+    void log_all(Command &line, AccountManagement& accounts); //
 
     void Print(const Behavior &x);
 };
-
-#endif //BOOKSTORE_LOG_H
 ```

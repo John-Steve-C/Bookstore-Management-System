@@ -6,7 +6,7 @@
 LogManagement::LogManagement() {
     log_data.initialise("log_data");
 }
-void LogManagement::ShowFinance(int limit) {
+void LogManagement::show_finance(int limit) {
     //进入前应当进行权限判断
     //time = 0
 
@@ -36,7 +36,7 @@ void LogManagement::ShowFinance(int limit) {
          << " - " << fixed << setprecision(2) << dec << "\n";
 }
 
-void LogManagement::Report_employee(Command &line, AccountManagement &accounts) {
+void LogManagement::report_employee(Command &line, AccountManagement &accounts) {
     if (accounts.get_current_Priority() < 7 || line.cnt != 2) {
         throw Exception("Invalid\n");
     }
@@ -57,7 +57,7 @@ void LogManagement::Report_employee(Command &line, AccountManagement &accounts) 
     }
 }
 
-void LogManagement::Report_myself(Command &line, AccountManagement &accounts) {
+void LogManagement::report_myself(Command &line, AccountManagement &accounts) {
     if (accounts.get_current_Priority() < 3 || line.cnt != 2) {
         throw Exception("Invalid\n");
     }
@@ -74,7 +74,7 @@ void LogManagement::Report_myself(Command &line, AccountManagement &accounts) {
     }
 }
 
-void LogManagement::Log_All(Command &line, AccountManagement& accounts) {
+void LogManagement::log_all(Command &line, AccountManagement& accounts) {
     if (accounts.get_current_Priority() < 7 || line.cnt != 1) {
         throw Exception("Invalid\n");
     }
@@ -89,7 +89,7 @@ void LogManagement::Log_All(Command &line, AccountManagement& accounts) {
     }
 }
 
-void LogManagement::AddLog(Log &log) {
+void LogManagement::add_log(Log &log) {
     log_data.write(log);
 }
 

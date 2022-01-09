@@ -11,7 +11,7 @@
 int main() {
     int line = 0;
 
-//    freopen("1.in","r",stdin); freopen("ans.txt","w",stdout);
+    freopen("test.in","r",stdin); freopen("ans.txt","w",stdout);
 
     string command_input;
     AccountManagement accounts;
@@ -61,22 +61,22 @@ int main() {
                         throw Exception("Invalid\n");
                     string limit = temp_cmd.next_token();
 
-                    if (limit.empty()) logs.ShowFinance();
+                    if (limit.empty()) logs.show_finance();
                     else {
                         for (int i = 0;i < limit.length(); ++i) {
                             if (!isdigit(limit[i]))
                                 throw Exception("Invalid\n");
                         }
-                        logs.ShowFinance(stoi(limit));
+                        logs.show_finance(stoi(limit));
                     }
                 } else {//说明是书本
-                    books.Show(cmd, accounts, logs);
+                    books.show(cmd, accounts, logs);
                 }
             }
-            else if (order == "buy") books.Buy(cmd, accounts, logs);
-            else if (order == "select") books.Select(cmd, accounts, logs);
-            else if (order == "modify") books.Modify(cmd, accounts, logs);
-            else if (order == "import") books.ImportBook(cmd, accounts, logs);
+            else if (order == "buy") books.buy(cmd, accounts, logs);
+            else if (order == "select") books.select(cmd, accounts, logs);
+            else if (order == "modify") books.modify(cmd, accounts, logs);
+            else if (order == "import") books.import_book(cmd, accounts, logs);
 
             //todo:log_system
             else if (order == "report") {
@@ -88,13 +88,13 @@ int main() {
                     throw Exception("Invalid\n");
                 }
                 if (order == "myself") {
-                    logs.Report_myself(cmd, accounts);
+                    logs.report_myself(cmd, accounts);
                 }
                 else if (order == "finance") {
-                    logs.ShowFinance();
+                    logs.show_finance();
                 }
                 else if (order == "employee") {
-                    logs.Report_employee(cmd, accounts);
+                    logs.report_employee(cmd, accounts);
                 }
             }
             else if (order == "log") {
@@ -104,7 +104,7 @@ int main() {
                 if (cmd.cnt != 1) {
                     throw Exception("Invalid\n");
                 } else {
-                    logs.Log_All(cmd, accounts);
+                    logs.log_all(cmd, accounts);
                 }
             }
 

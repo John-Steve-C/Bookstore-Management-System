@@ -41,15 +41,15 @@ private:
 public:
     LogManagement();
 
-    void Report_employee(Command& line, AccountManagement& accounts);
+    void report_employee(Command& line, AccountManagement& accounts);
 
-    void Report_myself(Command &line, AccountManagement& accounts);
+    void report_myself(Command &line, AccountManagement& accounts);
 
-    void AddLog(Log& log); // 把 log 放进文件的同时还需要检查是否有交易
+    void add_log(Log& log); // 把 log 放进文件的同时还需要检查是否有交易
 
-    void ShowFinance(int limit = -1); // 若为 -1，则显示全部
+    void show_finance(int limit = -1); // 若为 -1，则显示全部
 
-    void Log_All(Command &line, AccountManagement& accounts); //
+    void log_all(Command &line, AccountManagement& accounts); //
 
     void Print(const Behavior &x);
 };
